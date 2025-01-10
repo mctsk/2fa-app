@@ -1,0 +1,4 @@
+# ignore ALL .log files
+out/
+node_modules/
+data.json

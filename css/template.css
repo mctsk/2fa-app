@@ -1,0 +1,135 @@
+@font-face {
+    font-family: RobotoCondensedLight;
+    src: url("../static/RobotoCondensed-Light.ttf");
+  }
+
+body
+{
+    font-family: "RobotoCondensedLight", serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    font-variation-settings:
+      "wdth" 100;
+}
+
+.title {
+    font-weight: bold;
+    display: block;
+    font-size: 9pt;
+    font-family: "RobotoCondensedLight", serif;
+}
+
+.time,
+.code {
+    color: #1D77E5;
+    display: block;
+    font-weight: bold;
+    font-size: 20pt;
+    font-family: "RobotoCondensedLight", serif;
+}
+
+.time {
+  border-radius: 50%;
+  width: 50px;
+  height: auto;
+  font-size: 15pt;
+  color:#C84200 ;
+  text-align: center;
+}
+
+.row {
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+    z-index: 9999;
+    margin-top: 5px;
+}
+
+  
+.time-wrapper{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+  .chart {
+    color: #242424;
+    display: block;
+    font-weight: bold;
+    font-size: 20pt;
+    font-family: "RobotoCondensedLight", serif;
+  }
+  
+
+  #snackbar {
+    visibility: hidden; /* Hidden by default. Visible on click */
+    min-width: 250px; /* Set a default minimum width */
+    margin-left: -125px; /* Divide value of min-width by 2 */
+    background-color: #333; /* Black background color */
+    color: #fff; /* White text color */
+    text-align: center; /* Centered text */
+    border-radius: 2px; /* Rounded borders */
+    padding: 5px; /* Padding */
+    font-size: 10pt;
+    position: fixed; /* Sit on top of the screen */
+    z-index: 1; /* Add a z-index if needed */
+    left: 50%; /* Center the snackbar */
+    bottom: 10px; /* 30px from the bottom */
+    border-radius: 10px;
+    opacity: 0.7;
+  }
+  
+  /* Show the snackbar when clicking on a button (class added with JavaScript) */
+  #snackbar.show {
+    visibility: visible; /* Show the snackbar */
+    /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+    However, delay the fade out process for 2.5 seconds */
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  }
+  
+  /* Animations to fade the snackbar in and out */
+  @-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 10px; opacity: 0.7;}
+  }
+  
+  @keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 10px; opacity: 0.7;}
+  }
+  
+  @-webkit-keyframes fadeout {
+    from {bottom: 10px; opacity: 0.7;}
+    to {bottom: 0; opacity: 0;}
+  }
+  
+  @keyframes fadeout {
+    from {bottom: 10px; opacity: 0.7;}
+    to {bottom: 0; opacity: 0;}
+  }
+
+  /* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+
+.logo{
+  width: 50px;
+  height: 50px;
+  background-size: cover;
+}
