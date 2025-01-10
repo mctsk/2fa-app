@@ -2,107 +2,11 @@
   "entries": [
     {
       "type": "totp",
-      "name": "LCW Vpn",
-      "issuer": "LCW Vpn",
-      "icon": "https://static.vecteezy.com/system/resources/previews/020/964/377/non_2x/gmail-mail-icon-for-web-design-free-png.png",
+      "name": "Vpn",
+      "issuer": "Vpn",
+      "icon": "",
       "info": {
-        "secret": "KBDEYMS2KVKEKVSOGRKFAM2UKQ",
-        "algo": "SHA1",
-        "digits": 6,
-        "period": 30
-      }
-    },
-    {
-      "type": "totp",
-      "name": "LCW STS",
-      "issuer": "LCW STS",
-      "icon": null,
-      "info": {
-        "secret": "OBADOMBRGU4DSNZY",
-        "algo": "SHA1",
-        "digits": 6,
-        "period": 30
-      }
-    },
-    {
-      "type": "totp",
-      "name": "macit.isik@gmail.com",
-      "issuer": "macit.isik@gmail.com",
-      "icon": null,
-      "info": {
-        "secret": "OZMQ26W2WR2SVBBFHIYI3ZADQELNQUKH",
-        "algo": "SHA1",
-        "digits": 6,
-        "period": 30
-      }
-    },
-    {
-      "type": "totp",
-      "name": "Netiq",
-      "issuer": "Netiq",
-      "icon": null,
-      "info": {
-        "secret": "OCWJUI6N5GZVYA7QZC27YHTQZJNZYGQD",
-        "algo": "SHA1",
-        "digits": 6,
-        "period": 30
-      }
-    },
-    {
-      "type": "totp",
-      "name": "Nvidia",
-      "issuer": "Nvidia",
-      "icon": null,
-      "info": {
-        "secret": "MVDVA22EGRSFE2RNKYWU66TWGBDGSVTT",
-        "algo": "SHA1",
-        "digits": 6,
-        "period": 30
-      }
-    },
-    {
-      "type": "totp",
-      "name": "macit",
-      "issuer": "macit",
-      "icon": null,
-      "info": {
-        "secret": "cbvazzhkzplstlz4",
-        "algo": "SHA1",
-        "digits": 6,
-        "period": 30
-      }
-    },
-    {
-      "type": "totp",
-      "name": "macit",
-      "issuer": "macit",
-      "icon": null,
-      "info": {
-        "secret": "QLPCT6ISXUAGY5HXJ6ZDPPJV5GZA3MZF",
-        "algo": "SHA1",
-        "digits": 6,
-        "period": 30
-      }
-    },
-    {
-      "type": "totp",
-      "name": "microsoft LCW 365",
-      "issuer": "microsoft",
-      "icon": null,
-      "info": {
-        "secret": "TJL6TVMTR5FZXRW7",
-        "algo": "SHA1",
-        "digits": 6,
-        "period": 30
-      }
-    },
-    {
-      "type": "totp",
-      "name": "macit@outlook.com.tr",
-      "issuer": "microsoft",
-      "icon": null,
-      "info": {
-        "secret": "xcf4uxmqlfd66dwf",
+        "secret": "XXXXXXXXXXXXXXXXXXXXXXX",
         "algo": "SHA1",
         "digits": 6,
         "period": 30
