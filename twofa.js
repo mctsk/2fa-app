@@ -1,9 +1,16 @@
 const fs = require('fs')
+const os = require('os')
 const { TOTP } = require('totp-generator')
 const bootstrap = require('bootstrap')
 const Sortable = require('sortablejs')
+const storage = require('electron-json-storage');
 
+
+storage.setDataPath(os.homedir());
+
+const dataPath = storage.getDataPath();
 const path = require('path')
+
 
 const filePath = path.join(__dirname, 'data.json')
 let allData = {}
@@ -12,7 +19,7 @@ var remainSeconds = 0;
 var deleteModal;
 var addModal;
 var sortable;
-
+var snackbar;
 
 document.addEventListener('DOMContentLoaded', function () {
     deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'))
@@ -38,12 +45,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 )
             })
 
-            queueList.forEach((item,i)=>{
-                var entry = allData.entries.find(x=>{ return x.id == item});
+            queueList.forEach((item, i) => {
+                var entry = allData.entries.find(x => { return x.id == item });
                 entry.queue = i;
             });
 
-            writeData();
+            // writeData();
+            setStorage()
         };
     });
 
@@ -52,6 +60,65 @@ document.addEventListener('DOMContentLoaded', function () {
 
 }, false);
 
+
+
+function getStorage() {
+    storage.get('userData', function (error, data) {
+        if (error) throw error;
+
+        const response = data
+        // handle the json data here
+        $(".twofa-list").html("");
+
+        allData = response;
+
+        response?.entries?.sort((a, b) => a.queue - b.queue).map((x) => {
+
+            const key = x.info.secret
+
+            var time = new Date();
+
+            var t1 = time.getTime()
+
+            const { otp, expires } = TOTP.generate(key, {
+                digits: x.info.digits,
+                period: x.info.period,
+                timestamp: time.getTime(),
+            })
+
+            var dif = t1 - expires;
+            remainSeconds = Math.round(dif / 1000) * -1;
+
+            $(".twofa-list").append(`
+                <li class="row row-2fa" dataid="${x.id}">
+                    <div class="col-9">
+                        <label class="title">${x.name}</label>
+                        <label class="code">${otp}</label>
+                    </div>
+                    <div class="col-1 time-wrapper">
+                        <div class="time">${remainSeconds}</div>
+                    </div>
+                    <div class="col-1">
+                        <a href="#" class="delete" dataid="${x.id}" data-bs-toggle="modal" data-bs-target=".delete-modal">Sil</a>
+                    </div>
+                </div>
+                `)
+        })
+    });
+}
+
+function setStorage() {
+    storage.set('userData', allData, function (error) {
+        if (error) throw error;
+
+        addModal.hide();
+        $("#addNewModal").find("input").val("");
+
+        deleteModal.hide();
+
+        getStorage();
+    });
+}
 
 function writeData() {
     var newdata = JSON.stringify(allData);
@@ -74,7 +141,8 @@ function writeData() {
                 return;
             }
             else {
-                readData()
+                // readData()
+                getStorage();
             }
         })
 }
@@ -128,25 +196,19 @@ function readData() {
 }
 
 function toast() {
-    // Get the snackbar DIV
-    var x = document.getElementById("snackbar");
-
-    // Add the "show" class to DIV
-    x.className = "show";
-
-    // After 3 seconds, remove the show class from DIV
-    setTimeout(function () { x.className = x.className.replace("show", ""); }, 1500);
+    snackbar.className = "show";
+    setTimeout(function () { snackbar.className = snackbar.className.replace("show", ""); }, 1500);
 }
 
 $(document).ready(function () {
 
-    // $("#sortable").sortable();
-    // $("#sortable").disableSelection();
+    snackbar = document.getElementById("toast");
 
     setInterval(function () {
         if (remainSeconds < 2) {
             $(".time").html("");
-            readData()
+            // readData()
+            getStorage();
         }
         else {
             remainSeconds--;
@@ -188,16 +250,21 @@ $(document).ready(function () {
                 "period": 30
             }
         }
+
+        if (!allData.entries)
+            allData.entries = [];
+
         allData.entries.push(entity);
-        writeData();
+        // writeData();
+        setStorage()
     })
 
     $(document).delegate(".delete-btn", "click", function (e) {
-        var target = e.currentTarget;
         var value = $("#deleteModal").attr("dataid");
         allData.entries = allData.entries.filter(x => {
             return x.id != value
         })
-        writeData()
+        //writeData()
+        setStorage()
     })
 });

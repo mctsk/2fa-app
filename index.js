@@ -1,11 +1,12 @@
 const { app, BrowserWindow } = require('electron/main')
 const path = require('node:path')
 
-function createWindow () {
+function createWindow() {
   const win = new BrowserWindow({
     width: 300,
     height: 550,
-    transparent: true, 
+    transparent: true,
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -13,7 +14,9 @@ function createWindow () {
     }
   })
 
-win.show()
+  win.removeMenu()
+
+  win.show()
 
   win.loadFile('index.html')
 }
