@@ -13,13 +13,67 @@
     <script src="renderer.js"></script>
     <script src="twofa.js"></script>
     <script src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="node_modules/jquery-ui/dist/jquery-ui.min.js"></script>
 </head>
 
 <body>
-    <div class="container twofa-list">
-        
+    <div class="container" id="sortable">
+        <div class="row row-header">
+            <div class="col logo">
+                2FA Codes
+            </div>
+            <div class="col float-right">
+                <a href="#" class="addnew">+ Yeni Ekle</a>
+            </div>
+        </div>
+    </div>
+    <div class="container twofa-list" id="sortable">
     </div>
     <div id="snackbar">Kopyalandı</div>
+
+    <div class="modal modal-sm modal-fullscreen" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sil</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Silmek İstediğinizden emin misiniz ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="button" class="btn btn-primary delete-btn">Sil</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal modal-sm modal-fullscreen" id="addNewModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni Ekle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">İsim</label>
+                        <input type="text" class="form-control" id="name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="secret" class="form-label">Secret</label>
+                        <input type="text" class="form-control" id="secret">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="button" class="btn btn-primary save-btn">Ekle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>

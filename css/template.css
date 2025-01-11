@@ -10,22 +10,26 @@ body
     font-style: normal;
     font-variation-settings:
       "wdth" 100;
+      padding-top: 40px;
 }
 
 .title {
     font-weight: bold;
     display: block;
-    font-size: 9pt;
+    font-size: 10pt;
     font-family: "RobotoCondensedLight", serif;
+    cursor: pointer;
 }
 
 .time,
 .code {
-    color: #1D77E5;
+    color: #1293DE;
     display: block;
     font-weight: bold;
     font-size: 20pt;
     font-family: "RobotoCondensedLight", serif;
+    position: relative;
+    cursor: pointer;
 }
 
 .time {
@@ -35,15 +39,57 @@ body
   font-size: 15pt;
   color:#C84200 ;
   text-align: center;
+  position: relative;
+  top: 8px;
 }
 
-.row {
+.row-header,
+.row-2fa {
     border-bottom: 1px solid #ccc;
     cursor: pointer;
-    z-index: 9999;
-    margin-top: 5px;
+    position: relative;
+    user-select: none;
+    padding: 5px;
 }
 
+.row-header {
+  position: fixed;
+  height: 40px;
+  top: 0;
+  background-color: #eee;
+  z-index: 9999;
+}
+
+.addnew {
+  text-decoration: none;
+  color: #1D77E5;
+  font-size: 10pt;
+  font-weight: bold;
+  text-align: right;
+  position: relative;
+  top: 7px;
+  right: 3px;
+  float: right;
+}
+
+.row-2fa .delete {
+  position: relative;
+  z-index: 55;
+  color: red;
+  text-decoration: none;
+  font-size: 10pt;
+  top: 25px;
+  left: 10px;
+}
+
+#addNewModal,
+#deleteModal {
+  margin-top: 50px !important;
+}
+
+.row-2fa:hover{
+  background-color: #eee;
+}
   
 .time-wrapper{
     display: flex;
@@ -110,7 +156,7 @@ body
 
   /* width */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 5px;
 }
 
 /* Track */
@@ -129,7 +175,9 @@ body
 }
 
 .logo{
-  width: 50px;
-  height: 50px;
-  background-size: cover;
+  width: 200px;
+  height: 30px;
+  font-weight: 900;
+  color: #CF382B;
+  padding-top: 5px;
 }
