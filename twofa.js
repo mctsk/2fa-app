@@ -1,6 +1,8 @@
 const fs = require('fs')
 const { TOTP } = require('totp-generator')
 const bootstrap = require('bootstrap')
+const Sortable = require('sortablejs')
+
 const path = require('path')
 
 const filePath = path.join(__dirname, 'data.json')
@@ -9,10 +11,45 @@ let allData = {}
 var remainSeconds = 0;
 var deleteModal;
 var addModal;
+var sortable;
+
 
 document.addEventListener('DOMContentLoaded', function () {
     deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'))
     addModal = new bootstrap.Modal(document.getElementById('addNewModal'))
+
+
+    var el = document.getElementById('sortable');
+    var options = {
+        group: 'share',
+        animation: 100
+    };
+
+    events = [
+        'onEnd',
+    ].forEach(function (name) {
+        options[name] = function (evt) {
+
+            var itemList = document.querySelectorAll(".row-2fa")
+
+            var queueList = [];
+            itemList.forEach((x, i) => {
+                queueList.push(x.getAttribute("dataid")
+                )
+            })
+
+            queueList.forEach((item,i)=>{
+                var entry = allData.entries.find(x=>{ return x.id == item});
+                entry.queue = i;
+            });
+
+            writeData();
+        };
+    });
+
+    sortable = Sortable.create(el, options);
+
+
 }, false);
 
 
@@ -54,7 +91,7 @@ function readData() {
 
         allData = response;
 
-        response.entries.map((x) => {
+        response.entries.sort((a, b) => a.queue - b.queue).map((x) => {
 
             const key = x.info.secret
 
@@ -72,7 +109,7 @@ function readData() {
             remainSeconds = Math.round(dif / 1000) * -1;
 
             $(".twofa-list").append(`
-                <div class="row row-2fa">
+                <li class="row row-2fa" dataid="${x.id}">
                     <div class="col-9">
                         <label class="title">${x.name}</label>
                         <label class="code">${otp}</label>

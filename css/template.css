@@ -181,3 +181,9 @@ body
   color: #CF382B;
   padding-top: 5px;
 }
+
+.modal-body,
+.modal-footer,
+.modal-header{
+  padding: 5px 15px;
+}

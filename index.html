@@ -13,11 +13,10 @@
     <script src="renderer.js"></script>
     <script src="twofa.js"></script>
     <script src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="node_modules/jquery-ui/dist/jquery-ui.min.js"></script>
 </head>
 
 <body>
-    <div class="container" id="sortable">
+    <div class="container">
         <div class="row row-header">
             <div class="col logo">
                 2FA Codes
@@ -27,7 +26,7 @@
             </div>
         </div>
     </div>
-    <div class="container twofa-list" id="sortable">
+    <ul class="container twofa-list" id="sortable">
     </div>
     <div id="snackbar">Kopyalandı</div>
 
@@ -35,15 +34,15 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Sil</h5>
+                    <h6 class="modal-title">Sil</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body small">
                     <p>Silmek İstediğinizden emin misiniz ?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-                    <button type="button" class="btn btn-primary delete-btn">Sil</button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="button" class="btn btn-sm btn-primary delete-btn">Sil</button>
                 </div>
             </div>
         </div>
@@ -53,22 +52,22 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Yeni Ekle</h5>
+                    <h6 class="modal-title">Yeni Ekle</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="name" class="form-label">İsim</label>
-                        <input type="text" class="form-control" id="name">
+                        <label for="name" class="form-label small">İsim</label>
+                        <input type="text" class="form-control form-control-sm" id="name">
                     </div>
                     <div class="mb-3">
-                        <label for="secret" class="form-label">Secret</label>
-                        <input type="text" class="form-control" id="secret">
+                        <label for="secret" class="form-label small">Secret</label>
+                        <input type="text" class="form-control form-control-sm" id="secret">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-                    <button type="button" class="btn btn-primary save-btn">Ekle</button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="button" class="btn btn-sm btn-primary save-btn">Ekle</button>
                 </div>
             </div>
         </div>
