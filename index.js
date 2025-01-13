@@ -14,7 +14,7 @@ function createWindow() {
     }
   })
 
-  win.removeMenu()
+  //win.removeMenu()
 
   win.show()
 

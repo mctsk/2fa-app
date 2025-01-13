@@ -25,22 +25,31 @@ body
 .code {
     color: #1293DE;
     display: block;
-    font-weight: bold;
+    font-weight:100;
     font-size: 20pt;
     font-family: "RobotoCondensedLight", serif;
     position: relative;
     cursor: pointer;
 }
+.code span{
+  font-weight:600;
+}
 
 .time {
-  border-radius: 50%;
-  width: 50px;
-  height: auto;
-  font-size: 15pt;
-  color:#C84200 ;
-  text-align: center;
   position: relative;
-  top: 8px;
+  top: 10px;
+}
+
+.time div {
+  text-align: center;
+  width: 30px;
+  height: 30px;
+  font-size: 13pt;
+  padding: 5px;
+  top:-7px;
+  right: 5px;
+  display: block;
+  position: relative;
 }
 
 .row-header,
@@ -187,4 +196,50 @@ body
 .modal-footer,
 .modal-header{
   padding: 5px 15px;
+}
+
+
+#countdown {
+  position: relative;
+  margin: auto;
+  margin-top: 17px;
+  height: 30px;
+  width: 30px;
+  text-align: center;
+}
+
+#countdown-number {
+  position: absolute;
+  color: red;
+  display: inline-block;
+  line-height: 45px;
+}
+
+svg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  transform: rotateY(-180deg) rotateZ(-90deg);
+}
+
+svg circle {
+  stroke-dasharray: 113px;
+  stroke-dashoffset: 0px;
+  stroke-linecap: round;
+  stroke-width: 2px;
+  stroke: #1D77E5;
+  fill: none;
+  animation: countdown linear infinite forwards;
+  animation-delay: 0;
+}
+
+@keyframes countdown {
+  from {
+    stroke-dashoffset: 0px;
+  }
+  to {
+    stroke-dashoffset: 113px;
+  }
 }
