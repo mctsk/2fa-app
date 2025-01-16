@@ -37,17 +37,18 @@ body
 
 .time {
   position: relative;
-  top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid hsl(202, 100%, 89%);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
 }
 
 .time div {
   text-align: center;
-  width: 30px;
-  height: 30px;
-  font-size: 13pt;
-  padding: 5px;
-  top:-7px;
-  right: 5px;
+  font-size: 10pt;
   display: block;
   position: relative;
 }
@@ -67,6 +68,7 @@ body
   top: 0;
   background-color: #eee;
   z-index: 9999;
+  width: 100%;
 }
 
 .addnew {
@@ -83,12 +85,20 @@ body
 
 .row-2fa .delete {
   position: relative;
+  display: block;
   z-index: 55;
   color: red;
   text-decoration: none;
   font-size: 10pt;
-  top: 25px;
-  left: 10px;
+}
+
+.row-2fa .edit {
+  position: relative;
+  display: block;
+  z-index: 55;
+  color: #1D77E5;
+  text-decoration: none;
+  font-size: 10pt;
 }
 
 #addNewModal,
@@ -201,26 +211,19 @@ body
 
 #countdown {
   position: relative;
-  margin: auto;
-  margin-top: 17px;
-  height: 30px;
-  width: 30px;
-  text-align: center;
+  height: 15px;
+  width: 15px;
 }
 
 #countdown-number {
-  position: absolute;
-  color: red;
-  display: inline-block;
-  line-height: 45px;
+
 }
 
 svg {
   position: absolute;
   top: 0;
-  right: 0;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   transform: rotateY(-180deg) rotateZ(-90deg);
 }
 

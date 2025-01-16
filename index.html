@@ -3,22 +3,20 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP --> 
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
     <title>2FA Codes</title>
     <link href="./css/index.css" rel="stylesheet" />
     <link href="./css/template.css" rel="stylesheet" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="./renderer.js"></script>
     <script src="./twofa.js"></script>
     <script src="./node_modules/bootstrap/dist/js/bootstrap.js"></script>
-
 </head>
 
 <body>
 
-    <div class="container">
+    <div class="container-fluid">
         <div class="row row-header">
             <div class="col logo">
                 2FA Codes
@@ -28,7 +26,7 @@
             </div>
         </div>
     </div>
-    <ul class="container twofa-list" id="sortable">
+    <ul class="container-fluid twofa-list" id="sortable">
     </ul>
     <div class="modal modal-sm modal-fullscreen" id="deleteModal" tabindex="-1">
         <div class="modal-dialog">
@@ -51,7 +49,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h6 class="modal-title">Yeni Ekle</h6>
+                    <h6 class="modal-title">Ekle / Düzenle</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -66,7 +64,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Kapat</button>
-                    <button type="button" class="btn btn-sm btn-primary save-btn">Ekle</button>
+                    <button type="button" class="btn btn-sm btn-primary save-btn">Kaydet</button>
                 </div>
             </div>
         </div>

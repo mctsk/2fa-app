@@ -27,6 +27,7 @@
     "@keyframes/core": "^2.0.10",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
     "electron-json-storage": "^4.6.0",
     "electron-squirrel-startup": "^1.0.1",
     "electron-storage": "^1.0.7",

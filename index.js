@@ -3,8 +3,8 @@ const path = require('node:path')
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 300,
-    height: 550,
+    width: 350,
+    height: 600,
     transparent: true,
     autoHideMenuBar: true,
     webPreferences: {
