@@ -6,28 +6,42 @@
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP --> 
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <title>2FA Codes</title>
+    <title>AuthCodes</title>
     <link href="./css/index.css" rel="stylesheet" />
     <link href="./css/template.css" rel="stylesheet" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./img/icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./img/icon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./img/icon.png">
     <script src="./renderer.js"></script>
     <script src="./twofa.js"></script>
     <script src="./node_modules/bootstrap/dist/js/bootstrap.js"></script>
 </head>
 
 <body>
-
     <div class="container-fluid">
         <div class="row row-header">
             <div class="col logo">
-                2FA Codes
+               <img src="./img/icon.png" /> AuthCodes
             </div>
-            <div class="col float-right">
-                <a href="#" class="addnew">+ Yeni Ekle</a>
+            <div class="col float-right d-none">
+                <a href="#" class="close-window">
+                    <i class="bi bi-dash-lg"></i>
+                </a>
+                <a href="#" class="minimize-window">
+                    <i class="bi bi-x"></i>
+                </a>
             </div>
         </div>
     </div>
     <ul class="container-fluid twofa-list" id="sortable">
     </ul>
+    <div class="container-fluid p-0">
+        <div class="row row-footer p-0">
+            <div class="col p-0">
+                <a href="#" class="addnew"><i class="bi bi-plus-circle-dotted"></i></a>
+            </div>
+        </div>
+    </div>
     <div class="modal modal-sm modal-fullscreen" id="deleteModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">

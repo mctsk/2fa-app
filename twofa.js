@@ -19,6 +19,7 @@ var deleteModal;
 var addModal;
 var sortable;
 var snackbar;
+var countdownNumberEl;
 
 document.addEventListener('DOMContentLoaded', function () {
     deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'))
@@ -58,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 }, false);
 
-
+let firstStart =true;
 
 function getStorage() {
 	               
@@ -79,19 +80,16 @@ function getStorage() {
 
         var time = new Date();
 
-        var t1 = time.getTime()
+        // var t1 = time.getTime()
 
-        const { expires } = TOTP.generate(allData.entries[0].info.secret, {
-            digits: allData.entries[0].info.digits,
-            period: allData.entries[0].info.period,
-            timestamp: time.getTime(),
-        })
+        // const { expires } = TOTP.generate(allData.entries[0].info.secret, {
+        //     digits: allData.entries[0].info.digits,
+        //     period: allData.entries[0].info.period,
+        //     timestamp: Date.now(),
+        // })
         
-        var dif = t1 - expires;
-        remainSeconds = Math.round(dif / 1000) * -1;
-
-        $(document).trigger("onListLoaded");
-
+        remainSeconds = 30 - (Math.floor(time / 1000) % 30);
+        
         response?.entries?.sort((a, b) => a.queue - b.queue).map((x) => {
 
             const key = x.info.secret
@@ -100,9 +98,10 @@ function getStorage() {
             const { otp } = TOTP.generate(key, {
                 digits: x.info.digits,
                 period: x.info.period,
-                timestamp: time.getTime(),
+                timestamp: Date.now(),
             })
             var optText = otp.toString().substring(0, 1) + " <span>" + otp.toString().substring(1, 4) + "</span> " + otp.toString().substring(4, 6);
+            
 
             $(".twofa-list").append(`
                 <li class="row row-2fa" dataid="${x.id}">
@@ -114,12 +113,7 @@ function getStorage() {
                         <label class="code" otpdata="${otp}">${optText}</label>
                     </div>
                     <div class="col time-wrapper d-flex flex-column justify-content-center align-items-start">
-                     <div id="countdown" name="countdown">
-                        <div class="time"><div></div></div>
-                            <svg>
-                                <circle r="14" cx="15" cy="15"></circle>
-                            </svg>
-                        </div>
+                     <div id="countdown" name="countdown"><div class="time"><div>${ firstStart ?'':'30' }</div></div></div>
                     </div>
                     <div class="col d-flex justify-content-end align-items-center p-0">
                 <a href="#" class="edit" dataid="${x.id}" data-bs-toggle="modal" data-bs-target=".delete-modal"><i class="bi bi-pen"></i></i></a>
@@ -131,7 +125,17 @@ function getStorage() {
                 </div>
                 `)
         })
-        
+
+        if(firstStart)
+        {
+            $(document).trigger("onListLoaded");
+            firstStart=false;
+        }
+        else
+        {
+            timeDown(remainSeconds)
+            //circleAnimation(113,30);
+        }
     });
 }
 
@@ -154,40 +158,61 @@ function toast() {
     setTimeout(function () { snackbar.className = snackbar.className.replace("show", ""); }, 1500);
 }
 
+function timeDown(_remainSeconds){
+
+    console.log("timedown")
+
+    var countdown = _remainSeconds;
+    countdownNumberEl.html(countdown);
+    setInterval(function() {
+        countdown = --countdown <= 0 ? _remainSeconds : countdown;
+        countdownNumberEl.html(countdown);
+    }, 1000);
+}
+
+function circleAnimation(remainpercentanimation,remainSeconds) {
+
+    // document.styleSheets[1].cssRules[31].style.animationDuration=Math.round(remainSeconds)+"s"
+    document.styleSheets[1].cssRules[31].style.animationDuration="30s"
+    
+    let myRules = document.styleSheets[1].cssRules;
+    let keyframes = myRules[32];
+    var rule =keyframes.findRule("from");
+    
+    //rule.style.strokeDashoffset = Math.round(100-remainpercentanimation)+"px";
+    rule.style.strokeDashoffset = "0px";
+
+}
+
+var interval;
+
 $(document).ready(function () {
 
-    $(document).on("onListLoaded", function () {
-		
+    $(document).on("onListLoaded", function (remainSeconds) {
+
         var remainpercent = Math.round((remainSeconds / 30) * 113);
         var remainpercentanimation = Math.round((remainpercent / 113) * 100);
-		
-		console.log(remainSeconds,remainpercent,remainpercentanimation);
+                
+        //circleAnimation(remainpercentanimation,remainSeconds);
         
-        document.styleSheets[1].cssRules[31].style.animationDuration=Math.round(remainSeconds)+"s"
-        
-        let myRules = document.styleSheets[1].cssRules;
-        let keyframes = myRules[32];
-        var rule =keyframes.findRule("from");
-		
-		if(remainSeconds < 30)
-			rule.style.strokeDashoffset = Math.round(100-remainpercentanimation)+"px";
+        if(!countdownNumberEl)
+            countdownNumberEl = $('.time div');
 
-        var countdownNumberEl = document.getElementsByClassName('.time div');
         var countdown = remainSeconds;
-        
-        countdownNumberEl.textContent = countdown;
-        setInterval(function() {
-            countdown = --countdown <= 0 ? 30 : countdown;
-            countdownNumberEl.textContent = countdown;
-
-        }, 1000);
-    });
+        // countdownNumberEl.html(countdown);
+        interval =  setInterval(function() {
+                countdown = --countdown <= 0 ? 30 : countdown;
+                //countdownNumberEl.html(countdown);
+                if(countdown <=0)
+                    clearInterval(interval);
+            }, 1000);
+        });
     
     snackbar = document.getElementById("toast");
 
     setInterval(function () {
         if (remainSeconds <= 1) {
-            $(".time").html("");
+            $(".time div").html("");
             // readData()
             getStorage();
         }

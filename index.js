@@ -5,7 +5,13 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 350,
     height: 600,
+    icon: __dirname + '/img/icon.png',
     transparent: true,
+    titleBarOverlay: {
+      color: '#2f3241',
+      symbolColor: '#74b1be',
+      height: 60
+    },
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
@@ -14,7 +20,12 @@ function createWindow() {
     }
   })
 
-  //win.removeMenu()
+
+  if (app.isPackaged) {
+    win.removeMenu()
+  }
+
+  // win.setWindowButtonVisibility(false)
 
   win.show()
 
@@ -36,3 +47,22 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+var myWindow = null;
+
+var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
+  // Someone tried to run a second instance, we should focus our window.
+  if (myWindow) {
+    if (myWindow.isMinimized()) myWindow.restore();
+    myWindow.focus();
+  }
+});
+
+if (shouldQuit) {
+  app.quit();
+  return;
+}
+
+// Create myWindow, load the rest of the app, etc...
+app.on('ready', function() {
+});
