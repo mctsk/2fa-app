@@ -188,6 +188,11 @@ var interval;
 
 $(document).ready(function () {
 
+    $(window).on("focus",function(event){
+        firstStart = true;
+        getStorage()
+    });
+
     $(document).on("onListLoaded", function (remainSeconds) {
 
         var remainpercent = Math.round((remainSeconds / 30) * 113);

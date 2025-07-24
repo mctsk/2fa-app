@@ -159,6 +159,12 @@ body
   transition: ease-in-out .3s;
   box-shadow: #9c9c9c 0px 0px 5px;
 }
+
+.row-2fa:active{
+  width: 105%;
+  height: 105%;
+  transition: ease-in-out .2s;
+}
   
 .time-wrapper{
     display: flex;
