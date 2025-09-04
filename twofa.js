@@ -104,7 +104,8 @@ function getStorage() {
             
 
             $(".twofa-list").append(`
-                <li class="row row-2fa" dataid="${x.id}">
+                <div class="row row-2fa" dataid="${x.id}">
+                <div class="wrapper"></div>
                     <div class="col d-flex justify-content-center align-items-center p-0">
                         <i class="bi bi-grip-horizontal"></i>
                     </div>
@@ -123,6 +124,7 @@ function getStorage() {
                 <a href="#" class="delete" dataid="${x.id}" data-bs-toggle="modal" data-bs-target=".delete-modal"><i class="bi bi-trash3"></i></a>
                 </div>
                 </div>
+                
                 `)
         })
 

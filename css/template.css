@@ -12,6 +12,10 @@ body
       "wdth" 100;
       padding-top: 30px;
       background-color: #eee;
+      background-image:url(../img/bg.jpg);
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: 100vh;
 }
 
 .titlebar {
@@ -78,7 +82,7 @@ body
 
 .row-header,
 .row-2fa {
-    border-bottom: 1px solid #ccc;
+  background: rgba(255, 255, 255, 0.5);
     cursor: pointer;
     position: relative;
     user-select: none;
@@ -91,6 +95,18 @@ body
   background-color: #fff;
   border-radius: 7px;
   border: 1px solid #ccc;
+  background: rgba(255, 255, 255, 0.5);
+
+}
+
+.wrapper {
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  z-index: -1;
+  filter: blur(35px);
 }
 
 .row-footer {
@@ -108,7 +124,8 @@ body
   position: fixed;
   height: 30px;
   top: 0;
-  background-color: #eee;
+  background: rgba(255, 255, 255, 0.7);
+
   z-index: 9999;
   width: 100%;
   -webkit-app-region: drag;    /* Allow user to drag the window using this titlebar */
@@ -158,7 +175,10 @@ body
   background-color: #eee;
   transition: ease-in-out .3s;
   box-shadow: #9c9c9c 0px 0px 5px;
+  background: rgba(255, 255, 255, 0.8);
 }
+
+
 
 .row-2fa:active{
   width: 105%;
