@@ -7,10 +7,15 @@ function createWindow() {
     height: 600,
     icon: __dirname + '/img/icon.png',
     transparent: true,
+    fullscreen:false,
+    fullscreenable :false,
+    darkTheme :false,
+    titleBarStyle : "hidden",
     titleBarOverlay: {
-      color: '#2f3241',
-      symbolColor: '#74b1be',
-      height: 60
+      color: '#FFF',
+      symbolColor: '#333',
+      height: '35px',
+      right:'3px'
     },
     autoHideMenuBar: true,
     webPreferences: {
@@ -25,7 +30,6 @@ function createWindow() {
     win.removeMenu()
   }
 
-  // win.setWindowButtonVisibility(false)
 
   win.show()
 

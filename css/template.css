@@ -36,7 +36,7 @@ body
 
 .time,
 .code {
-    color: #1293DE;
+    color: #333;
     display: block;
     font-weight:100;
     font-size: 20pt;
@@ -45,7 +45,7 @@ body
     cursor: pointer;
 }
 .code span{
-  font-weight:600;
+  font-weight:bold;
 }
 
 .time {
@@ -63,7 +63,7 @@ body
 .time div {
   text-align: center;
   font-size: 20pt;
-  font-weight: bolder;
+  font-weight: bold;
   display: block;
   position: relative;
   opacity: 0.4;
@@ -113,8 +113,9 @@ body
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 45px;
-  color: #1D77E5;
+  flex-direction: column;
+  height: 55px;
+  width: 200px;
   padding: 0;
   margin: 0;
   margin-top: 5px;
@@ -133,16 +134,15 @@ body
   user-select: none;
 }
 
+.edit-btn,
 .addnew {
   text-decoration: none;
-  color: #1D77E5;
+  color: #333;
   font-size: 10pt;
   font-weight: bold;
   font-size: 18pt;
-  width: 100%;
-  display: block;
-  text-align: center;
-  margin: 0;
+  width: 30px;
+  margin: 5px;
 }
 
 .row-2fa .delete {
@@ -188,8 +188,8 @@ body
   
 .time-wrapper{
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-end;
+    justify-content: flex-end;
 }
 
   .chart {
@@ -200,6 +200,36 @@ body
     font-family: "RobotoCondensedLight", serif;
   }
   
+  .cbutton{
+    text-decoration: none;
+    margin-left: 5px;
+    border: 1px solid #1D77E5;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    font-size: 10pt;
+    padding: 3px;
+    align-items: center;
+    width: auto;
+    height: 20px;
+    flex-direction: row;
+    float: right;
+    border-radius: 3px;
+    position: relative;
+    right: 120px;
+  }
+
+  .cbutton.active ,
+  .cbutton:hover{
+    color: #FFF;
+    background-color: #1D77E5;
+  }
+
+  
+
+  .hide-on{
+    display: none !important;
+  }
 
   #toast {
     visibility: hidden; /* Hidden by default. Visible on click */
@@ -271,7 +301,7 @@ body
 }
 
 .logo{
-  width: 200px;
+  width: 100px;
   height: 100%;
   font-weight: 900;
   color: #CF382B;

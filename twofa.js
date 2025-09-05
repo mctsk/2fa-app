@@ -20,6 +20,7 @@ var addModal;
 var sortable;
 var snackbar;
 var countdownNumberEl;
+var editActive = false;
 
 document.addEventListener('DOMContentLoaded', function () {
     deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'))
@@ -100,30 +101,30 @@ function getStorage() {
                 period: x.info.period,
                 timestamp: Date.now(),
             })
-            var optText = otp.toString().substring(0, 1) + " <span>" + otp.toString().substring(1, 4) + "</span> " + otp.toString().substring(4, 6);
+            var optText = otp.toString().substring(0, 2) + " <span>" + otp.toString().substring(1, 3) + "</span> " + otp.toString().substring(4, 6);
             
 
             $(".twofa-list").append(`
-                <div class="row row-2fa" dataid="${x.id}">
+                <li class="row row-2fa " dataid="${x.id}">
                 <div class="wrapper"></div>
-                    <div class="col d-flex justify-content-center align-items-center p-0">
+                    <div class="col d-flex justify-content-center align-items-center f-order p-0 ${editActive ? "":"hide-on"}">
                         <i class="bi bi-grip-horizontal"></i>
                     </div>
                     <div class="col-7 d-flex flex-column justify-content-center align-items-start ">
                         <label class="title">${x.name}</label>
                         <label class="code" otpdata="${otp}">${optText}</label>
                     </div>
-                    <div class="col time-wrapper d-flex flex-column justify-content-center align-items-start">
+                    <div class="col time-wrapper d-flex flex-column justify-content-center align-items-end">
                      <div id="countdown" name="countdown"><div class="time"><div>${ firstStart ?'':'30' }</div></div></div>
                     </div>
-                    <div class="col d-flex justify-content-end align-items-center p-0">
+                    <div class="col d-flex ${editActive ? "":"hide-on"} f-edit justify-content-end align-items-center p-0">
                 <a href="#" class="edit" dataid="${x.id}" data-bs-toggle="modal" data-bs-target=".delete-modal"><i class="bi bi-pen"></i></i></a>
                 </div>
-                <div class="col d-flex justify-content-end align-items-center p-0">
+                <div class="col d-flex ${editActive ? "":"hide-on"} f-delete justify-content-end align-items-center p-0">
 
                 <a href="#" class="delete" dataid="${x.id}" data-bs-toggle="modal" data-bs-target=".delete-modal"><i class="bi bi-trash3"></i></a>
                 </div>
-                </div>
+                </li>
                 
                 `)
         })
@@ -162,8 +163,6 @@ function toast() {
 
 function timeDown(_remainSeconds){
 
-    console.log("timedown")
-
     var countdown = _remainSeconds;
     countdownNumberEl.html(countdown);
     setInterval(function() {
@@ -194,6 +193,24 @@ $(document).ready(function () {
         firstStart = true;
         getStorage()
     });
+
+    $(".edit-btn").on("click",function(event){
+
+        if(editActive) {
+            $(this).removeClass("active")
+            $(".f-order,.f-edit,.f-delete").addClass("hide-on");
+            $(".time-wrapper").addClass("align-items-start","align-items-end");
+            editActive=false;
+        } 
+        else    {
+            $(".f-order,.f-edit,.f-delete").removeClass("hide-on");
+            $(".time-wrapper").removeClass("align-items-start","align-items-end");
+            $(this).addClass("active")
+            editActive=true;
+        }
+
+    });
+
 
     $(document).on("onListLoaded", function (remainSeconds) {
 
