@@ -5,16 +5,21 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 350,
     height: 600,
+    minWidth: 350,
+    maxWidth: 350,
+    minHeight: 600,
+    maxHeight: 600,
+    resizable: false,
     icon: __dirname + '/img/icon.png',
     transparent: true,
-    fullscreen:false,
-    fullscreenable :false,
-    darkTheme :false,
-    titleBarStyle : "hidden",
+    fullscreen: false,
+    fullscreenable: false,
+    darkTheme: false,
+    //titleBarStyle: "hidden",
     titleBarOverlay: {
       symbolColor: '#ff79c6',
       color: '#44475a',
-      right:'0'
+      right: '0'
     },
     autoHideMenuBar: true,
     webPreferences: {

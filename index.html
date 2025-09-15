@@ -15,52 +15,51 @@
     <script src="./renderer.js"></script>
     <script src="./twofa.js"></script>
     <script src="./node_modules/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="./node_modules/material-components-web/dist/material-components-web.min.js"></script>
 </head>
 
 <body>
-    <div class="container-fluid">
-        <div class="row row-header">
-            <div class="logo float-right ">
-               <img src="./img/icon.png" /> AuthCodes
-            </div>
+    <header class="mdc-top-app-bar mdc-top-app-bar--dense">
+        <div class="mdc-top-app-bar__row">
+            <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+                <span class="mdc-top-app-bar__title">
+                    <img src="./img/icon.png" class="header-logo" />
+                    AuthCodes
+                </span>
+            </section>
+            <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
+                <a href="#" aria-label="Edit" class="mdc-icon-button material-icons edit-btn" title="Düzenle">tune</a>
+            </section>
         </div>
-    </div>
-    <ul class="container-fluid twofa-list" id="sortable">
+    </header>
+    <ul class="container-fluid twofa-list mdc-list mdc-list--two-line" id="sortable">
     </ul>
-    <div class="container-fluid p-0">
-        <div class="row row-footer p-0">
-            <div class="col p-0">
-                <a href="#" class="addnew"><i class="bi bi-plus-circle-dotted"></i></a>
-                <a href="#" class="edit-btn"><i class="bi bi-gear"></i></a>
-
-            </div>
-        </div>
-    </div>
-    <div class="modal modal-sm modal-fullscreen" id="deleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h6 class="modal-title">Sil</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body small">
+    <a href="#" class="addnew" aria-label="Yeni ekle">
+        <button class="mdc-fab fab-fixed" aria-label="Add">
+            <span class="mdc-fab__ripple"></span>
+            <span class="mdc-fab__icon material-icons">add</span>
+        </button>
+    </a>
+    <div class="mdc-dialog" id="deleteModal">
+        <div class="mdc-dialog__container">
+            <div class="mdc-dialog__surface" role="alertdialog" aria-modal="true" aria-label="Sil">
+                <h6 class="mdc-dialog__title">Sil</h6>
+                <div class="mdc-dialog__content small">
                     <p>Silmek İstediğinizden emin misiniz ?</p>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Kapat</button>
-                    <button type="button" class="btn btn-sm btn-primary delete-btn">Sil</button>
+                <div class="mdc-dialog__actions">
+                    <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close"><span class="mdc-button__label">Kapat</span></button>
+                    <button type="button" class="mdc-button mdc-dialog__button delete-btn" data-mdc-dialog-action="accept"><span class="mdc-button__label">Sil</span></button>
                 </div>
             </div>
         </div>
+        <div class="mdc-dialog__scrim"></div>
     </div>
-    <div class="modal modal-sm modal-fullscreen" id="addNewModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h6 class="modal-title">Ekle / Düzenle</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
+    <div class="mdc-dialog" id="addNewModal">
+        <div class="mdc-dialog__container">
+            <div class="mdc-dialog__surface" role="alertdialog" aria-modal="true" aria-label="Ekle / Düzenle">
+                <h6 class="mdc-dialog__title">Ekle / Düzenle</h6>
+                <div class="mdc-dialog__content">
                     <div class="mb-3">
                         <label for="name" class="form-label small">İsim</label>
                         <input type="text" class="form-control form-control-sm" id="name">
@@ -70,14 +69,19 @@
                         <input type="text" class="form-control form-control-sm" id="secret">
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Kapat</button>
-                    <button type="button" class="btn btn-sm btn-primary save-btn">Kaydet</button>
+                <div class="mdc-dialog__actions">
+                    <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close"><span class="mdc-button__label">Kapat</span></button>
+                    <button type="button" class="mdc-button mdc-dialog__button save-btn" data-mdc-dialog-action="accept"><span class="mdc-button__label">Kaydet</span></button>
                 </div>
             </div>
         </div>
+        <div class="mdc-dialog__scrim"></div>
     </div>
-    <div id="toast">Kopyalandı</div>
+    <div class="mdc-snackbar" id="snackbar">
+        <div class="mdc-snackbar__surface" role="status" aria-relevant="additions">
+            <div class="mdc-snackbar__label" aria-atomic="false"></div>
+        </div>
+    </div>
 </body>
 
 </html>

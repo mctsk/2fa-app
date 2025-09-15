@@ -1,7 +1,6 @@
 const fs = require('fs')
 const os = require('os')
 const { TOTP } = require('totp-generator')
-const bootstrap = require('bootstrap')
 const Sortable = require('sortablejs')
 const storage = require('electron-json-storage');
 
@@ -21,10 +20,14 @@ var sortable;
 var snackbar;
 var countdownNumberEl;
 var editActive = false;
+var longPressTimer = null;
+var longPressDelay = 1000; // 2 seconds
 
 document.addEventListener('DOMContentLoaded', function () {
-    deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'))
-    addModal = new bootstrap.Modal(document.getElementById('addNewModal'))
+    // Initialize MDC Dialogs and Snackbar
+    deleteModal = new mdc.dialog.MDCDialog(document.getElementById('deleteModal'))
+    addModal = new mdc.dialog.MDCDialog(document.getElementById('addNewModal'))
+    snackbar = new mdc.snackbar.MDCSnackbar(document.getElementById('snackbar'))
    
     var el = document.getElementById('sortable');
     var options = {
@@ -68,16 +71,34 @@ function getStorage() {
         if (error) throw error;
 
         const response = data
+        console.log("Loaded from electron storage:", response);
         
-        if(response != null && response.entries != null)
+        if(response != null && response.entries != null) {
             allData = response;
-        else
-            allData = {entries:[]}
+            console.log("Using electron storage data, entries count:", allData.entries.length);
+        } else {
+            // Try to load from local data.json file as fallback
+            try {
+                const localData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                console.log("Loaded from local data.json:", localData);
+                if (localData && localData.entries) {
+                    allData = localData;
+                    console.log("Using local file data, entries count:", allData.entries.length);
+                    // Save to electron storage for future use
+                    storage.set('userData', allData, function (error) {
+                        if (error) console.error("Error saving to electron storage:", error);
+                    });
+                } else {
+                    allData = {entries:[]};
+                }
+            } catch (fileError) {
+                console.log("Could not read local data.json, using empty data");
+                allData = {entries:[]};
+            }
+        }
 
         // handle the json data here
         $(".twofa-list").html("");
-
-        allData = response;
 
         var time = new Date();
 
@@ -91,46 +112,66 @@ function getStorage() {
         
         remainSeconds = 30 - (Math.floor(time / 1000) % 30);
         
-        response?.entries?.sort((a, b) => a.queue - b.queue).map((x) => {
-
-            const key = x.info.secret
-            x.id = x.id ?? Math.random().toString(36);
-
-            const { otp } = TOTP.generate(key, {
-                digits: x.info.digits,
-                period: x.info.period,
-                timestamp: Date.now(),
-            })
-            var optText = otp.toString().substring(0, 2) + " <span>" + otp.toString().substring(1, 3) + "</span> " + otp.toString().substring(4, 6);
+        if (allData.entries && allData.entries.length > 0) {
+            console.log("Rendering entries:", allData.entries.length);
+            console.log("All entries before sort:", allData.entries.map(e => ({name: e.name, queue: e.queue})));
             
+            const sortedEntries = allData.entries.sort((a, b) => (a.queue || 0) - (b.queue || 0));
+            console.log("Sorted entries:", sortedEntries.map(e => ({name: e.name, queue: e.queue})));
+            
+            sortedEntries.forEach((x, index) => {
+                console.log(`Rendering entry ${index + 1}:`, x.name, "queue:", x.queue);
+                const key = x.info.secret
+                x.id = x.id ?? Math.random().toString(36);
 
-            $(".twofa-list").append(`
-                <li class="row row-2fa " dataid="${x.id}">
-                <div class="wrapper"></div>
-                    <div class="col d-flex justify-content-center align-items-center f-order p-0 ${editActive ? "":"hide-on"}">
-                        <i class="bi bi-grip-horizontal"></i>
-                    </div>
-                    <div class="col-7 d-flex flex-column justify-content-center align-items-start ">
-                        <label class="title">${x.name}</label>
-                        <label class="code" otpdata="${otp}">${optText}</label>
-                    </div>
-                    <div class="col time-wrapper d-flex flex-column justify-content-center align-items-end">
-                     <div id="countdown" name="countdown"><div class="time"><div>${ firstStart ?'':'30' }</div></div></div>
-                    </div>
-                    <div class="col d-flex ${editActive ? "":"hide-on"} f-edit justify-content-end align-items-center p-0">
-                <a href="#" class="edit" dataid="${x.id}" data-bs-toggle="modal" data-bs-target=".delete-modal"><i class="bi bi-pen"></i></i></a>
-                </div>
-                <div class="col d-flex ${editActive ? "":"hide-on"} f-delete justify-content-end align-items-center p-0">
-
-                <a href="#" class="delete" dataid="${x.id}" data-bs-toggle="modal" data-bs-target=".delete-modal"><i class="bi bi-trash3"></i></a>
-                </div>
-                </li>
+                const { otp } = TOTP.generate(key, {
+                    digits: x.info.digits,
+                    period: x.info.period,
+                    timestamp: Date.now(),
+                })
+                var optText = otp.toString().substring(0, 2) + " <span>" + otp.toString().substring(1, 3) + "</span> " + otp.toString().substring(4, 6);
                 
+
+                $(".twofa-list").append(`
+                    <li class="row-2fa mdc-list-item" dataid="${x.id}">
+                        <span class="mdc-list-item__ripple"></span>
+                        <div class="mdc-list-item__start ${editActive ? "":"hide-on"}">
+                            <i class="material-icons" aria-hidden="true">drag_handle</i>
+                        </div>
+                        <span class="mdc-list-item__content">
+                            <span class="mdc-list-item__primary-text">${x.name}</span>
+                            <span class="mdc-list-item__secondary-text code" otpdata="${otp}">${optText}</span>
+                        </span>
+                        <div class="mdc-list-item__end">
+                            <div class="time-wrapper">
+                                <div class="countdown-circle"></div>
+                                <div id="countdown" name="countdown"><div class="time"><div>${ firstStart ?'':'30' }</div></div></div>
+                            </div>
+                            <div class="f-edit ${editActive ? "":"hide-on"}">
+                                <button class="edit mdc-icon-button" dataid="${x.id}">
+                                    <i class="material-icons" aria-hidden="true">edit</i>
+                                </button>
+                            </div>
+                            <div class="f-delete ${editActive ? "":"hide-on"}">
+                                <button class="delete mdc-icon-button" dataid="${x.id}">
+                                    <i class="material-icons" aria-hidden="true">delete</i>
+                                </button>
+                            </div>
+                        </div>
+                    </li>
                 `)
-        })
+            })
+        } else {
+            console.log("No entries found to render");
+        }
 
         if(firstStart)
         {
+            // Initialize countdown circles
+            var progress = remainSeconds / 30;
+            var rotation = (1 - progress) * 360 - 90;
+            $(".countdown-circle::before").css("transform", `rotate(${rotation}deg)`);
+            
             $(document).trigger("onListLoaded");
             firstStart=false;
         }
@@ -143,22 +184,32 @@ function getStorage() {
 }
 
 function setStorage() {
+    console.log("Saving data:", allData);
+    console.log("Entries count:", allData.entries ? allData.entries.length : 0);
+    
     storage.set('userData', allData, function (error) {
-        if (error) throw error;
+        if (error) {
+            console.error("Storage error:", error);
+            throw error;
+        }
 
+        console.log("Data saved successfully");
         $("#addNewModal").find("input").val("");
         $("#addNewModal").attr("dataid","");
 
-        addModal.hide();
-        deleteModal.hide();
+        addModal.close();
+        deleteModal.close();
 
         getStorage();
     });
 }
 
 function toast() {
-    snackbar.className = "show";
-    setTimeout(function () { snackbar.className = snackbar.className.replace("show", ""); }, 1500);
+    if(!snackbar){
+        snackbar = new mdc.snackbar.MDCSnackbar(document.getElementById('snackbar'))
+    }
+    snackbar.labelText = "Kopyalandı";
+    snackbar.open();
 }
 
 function timeDown(_remainSeconds){
@@ -194,21 +245,28 @@ $(document).ready(function () {
         getStorage()
     });
 
-    $(".edit-btn").on("click",function(event){
-
+    // Toggle edit mode function
+    function toggleEditMode() {
         if(editActive) {
-            $(this).removeClass("active")
-            $(".f-order,.f-edit,.f-delete").addClass("hide-on");
-            $(".time-wrapper").addClass("align-items-start","align-items-end");
+            $(".mdc-list-item__start, .f-edit, .f-delete").addClass("hide-on");
+            $(".edit-btn").removeClass("active");
             editActive=false;
+            console.log("Edit mode disabled");
         } 
         else    {
-            $(".f-order,.f-edit,.f-delete").removeClass("hide-on");
-            $(".time-wrapper").removeClass("align-items-start","align-items-end");
-            $(this).addClass("active")
+            $(".mdc-list-item__start, .f-edit, .f-delete").removeClass("hide-on");
+            $(".edit-btn").addClass("active");
             editActive=true;
+            console.log("Edit mode enabled");
         }
+    }
 
+    // Settings button (optional - can still be used)
+    $(document).on("click", ".edit-btn", function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        console.log("Settings button clicked, editActive:", editActive);
+        toggleEditMode();
     });
 
 
@@ -232,54 +290,125 @@ $(document).ready(function () {
             }, 1000);
         });
     
-    snackbar = document.getElementById("toast");
-
     setInterval(function () {
         if (remainSeconds <= 1) {
             $(".time div").html("");
+            // Reset all countdown circles to full rotation
+            $(".countdown-circle::before").css("transform", "rotate(-90deg)");
             // readData()
             getStorage();
         }
         else {
             remainSeconds--;
             $(".time div").html(remainSeconds);
+            
+            // Update countdown circle border - rotate to show decreasing progress
+            var progress = remainSeconds / 30; // Progress from 1 to 0
+            var rotation = (1 - progress) * 360 - 90; // Rotate from -90deg to 270deg
+            $(".countdown-circle::before").css("transform", `rotate(${rotation}deg)`);
         }
 
     }, 1000)
 
-    $(document).delegate(".row-2fa", "click", function (e) {
+    // Long press functionality for showing/hiding edit controls
+    function startLongPress(e) {
+        // Don't start long press if clicking on edit/delete buttons or drag handle
+        if ($(e.target).closest('.edit, .delete, .mdc-list-item__start').length > 0) {
+            return;
+        }
+        
+        var target = e.currentTarget;
+        longPressTimer = setTimeout(function() {
+            toggleEditMode();
+            // Add visual feedback
+            $(target).addClass('long-press-active');
+            setTimeout(function() {
+                $(target).removeClass('long-press-active');
+            }, 200);
+        }, longPressDelay);
+    }
+
+    function cancelLongPress() {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+    }
+
+    // Mouse events
+    $(document).on("mousedown", ".row-2fa", startLongPress);
+    $(document).on("mouseup mouseleave", ".row-2fa", cancelLongPress);
+
+    // Touch events for mobile
+    $(document).on("touchstart", ".row-2fa", function(e) {
+        e.preventDefault();
+        startLongPress(e);
+    });
+    
+    $(document).on("touchend touchcancel", ".row-2fa", function(e) {
+        e.preventDefault();
+        cancelLongPress();
+    });
+
+    // Regular click for copying (only if not in edit mode)
+    $(document).on("click", ".row-2fa", function (e) {
+        // Don't copy if clicking on edit/delete buttons or drag handle
+        if ($(e.target).closest('.edit, .delete, .mdc-list-item__start').length > 0) {
+            return;
+        }
+        
+        // Don't copy if in edit mode
+        if (editActive) {
+            return;
+        }
+        
         var target = e.currentTarget;
         var value = $(target).find(".code").attr("otpdata");
         navigator.clipboard.writeText(value);
         toast();
     })
 
-    $(document).delegate(".delete", "click", function (e) {
+    $(document).on("click", ".delete", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("Delete button clicked");
         var target = e.currentTarget;
         var value = $(target).attr("dataid")
+        console.log("Delete ID:", value);
         $("#deleteModal").attr("dataid", value)
-        deleteModal.show();
+        deleteModal.open();
     })
 
-    $(document).delegate(".addnew", "click", function (e) {
-        addModal.show();
+    $(document).on("click", ".addnew", function (e) {
+        e.preventDefault();
+        addModal.open();
     })
 
-    $(document).delegate(".edit", "click", function (e) {
+    $(document).on("click", ".edit", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("Edit button clicked");
         var target = e.currentTarget;
         var value = $(target).attr("dataid")
+        console.log("Edit ID:", value);
         $("#addNewModal").attr("dataid", value)
 
         var entity = allData.entries.find(x => { return x.id == value });
         $("#name").val(entity.name );
         $("#secret").val(entity.info.secret);
 
-        addModal.show();
+        addModal.open();
     })
 
-    $(document).delegate(".save-btn", "click", function (e) {
+    $(document).on("click", ".save-btn", function (e) {
+        e.preventDefault();
 
         var value = $("#addNewModal").attr("dataid");
+
+        // Ensure allData.entries exists
+        if (!allData.entries) {
+            allData.entries = [];
+        }
 
         if(!value){
             var date = new Date();
@@ -297,21 +426,23 @@ $(document).ready(function () {
                 }
             }
             allData.entries.push(entity);
+            console.log("Added new entry, total entries:", allData.entries.length);
         }
         else{
             var entity = allData.entries.find(x => { return x.id == value });
-            entity.name = $("#name").val();
-            entity.info.secret = $("#secret").val();
+            if (entity) {
+                entity.name = $("#name").val();
+                entity.info.secret = $("#secret").val();
+                console.log("Updated entry:", entity.name);
+            }
         }
-
-        if (!allData.entries)
-            allData.entries = [];
 
         // writeData();
         setStorage()
     })
 
-    $(document).delegate(".delete-btn", "click", function (e) {
+    $(document).on("click", ".delete-btn", function (e) {
+        e.preventDefault();
         var value = $("#deleteModal").attr("dataid");
         allData.entries = allData.entries.filter(x => {
             return x.id != value

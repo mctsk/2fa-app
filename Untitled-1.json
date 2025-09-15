@@ -1,0 +1,158 @@
+{
+    "entries": [
+        {
+            "id": 1,
+            "type": "totp",
+            "name": "LCW Vpn",
+            "issuer": "LCW Vpn",
+            "icon": null,
+            "info": {
+                "secret": "KBDEYMS2KVKEKVSOGRKFAM2UKQ",
+                "algo": "SHA1",
+                "digits": 6,
+                "period": 30
+            },
+            "queue": 0
+        },
+        {
+            "id": 2,
+            "type": "totp",
+            "name": "LCW STS 1",
+            "issuer": "LCW STS",
+            "icon": null,
+            "info": {
+                "secret": "OBADOMBRGU4DSNZY1",
+                "algo": "SHA1",
+                "digits": 6,
+                "period": 30
+            },
+            "queue": 1
+        },
+        {
+            "id": 4,
+            "type": "totp",
+            "name": "Netiq",
+            "issuer": "Netiq",
+            "icon": null,
+            "info": {
+                "secret": "OCWJUI6N5GZVYA7QZC27YHTQZJNZYGQD",
+                "algo": "SHA1",
+                "digits": 6,
+                "period": 30
+            },
+            "queue": 2
+        },
+        {
+            "id": 5,
+            "type": "totp",
+            "name": "Nvidia",
+            "issuer": "Nvidia",
+            "icon": null,
+            "info": {
+                "secret": "MVDVA22EGRSFE2RNKYWU66TWGBDGSVTT",
+                "algo": "SHA1",
+                "digits": 6,
+                "period": 30
+            },
+            "queue": 3
+        },
+        {
+            "id": 8,
+            "type": "totp",
+            "name": "microsoft LCW 365",
+            "issuer": "microsoft",
+            "icon": null,
+            "info": {
+                "secret": "TJL6TVMTR5FZXRW7",
+                "algo": "SHA1",
+                "digits": 6,
+                "period": 30
+            },
+            "queue": 4
+        },
+        {
+            "id": 3,
+            "type": "totp",
+            "name": "macit.isik@gmail.com",
+            "issuer": "macit.isik@gmail.com",
+            "icon": null,
+            "info": {
+                "secret": "OZMQ26W2WR2SVBBFHIYI3ZADQELNQUKH",
+                "algo": "SHA1",
+                "digits": 6,
+                "period": 30
+            },
+            "queue": 5
+        },
+        {
+            "id": 9,
+            "type": "totp",
+            "name": "macit@outlook.com.tr",
+            "issuer": "microsoft",
+            "icon": null,
+            "info": {
+                "secret": "xcf4uxmqlfd66dwf",
+                "algo": "SHA1",
+                "digits": 6,
+                "period": 30
+            },
+            "queue": 6
+        },
+        {
+            "id": 7,
+            "type": "totp",
+            "name": "LinkedIn",
+            "issuer": "macit",
+            "icon": null,
+            "info": {
+                "secret": "QLPCT6ISXUAGY5HXJ6ZDPPJV5GZA3MZF",
+                "algo": "SHA1",
+                "digits": 6,
+                "period": 30
+            },
+            "queue": 7
+        },
+        {
+            "id": 6,
+            "type": "totp",
+            "name": "discord",
+            "issuer": "macit",
+            "icon": null,
+            "info": {
+                "secret": "cbvazzhkzplstlz4",
+                "algo": "SHA1",
+                "digits": 6,
+                "period": 30
+            },
+            "queue": 8
+        },
+        {
+            "id": 1757971524360,
+            "type": "totp",
+            "name": "sdfsdf",
+            "issuer": "sdfsdf",
+            "icon": null,
+            "info": {
+                "secret": "sdfsdf",
+                "algo": "SHA1",
+                "digits": 6,
+                "period": 30
+            },
+            "queue": 9
+        },
+        {
+            "id": 1757971531465,
+            "type": "totp",
+            "name": "cdfgdfg",
+            "issuer": "cdfgdfg",
+            "icon": null,
+            "info": {
+                "secret": "dfgdgfgdfgdfgdfgdfg",
+                "algo": "SHA1",
+                "digits": 6,
+                "period": 30
+            },
+            "queue": 10
+        }
+    ]
+}
