@@ -12,10 +12,9 @@ function createWindow() {
     darkTheme :false,
     titleBarStyle : "hidden",
     titleBarOverlay: {
-      color: '#FFF',
-      symbolColor: '#333',
-      height: '30px',
-      right:'3px'
+      symbolColor: '#ff79c6',
+      color: '#44475a',
+      right:'0'
     },
     autoHideMenuBar: true,
     webPreferences: {
