@@ -365,7 +365,6 @@ $(document).ready(function () {
         var target = e.currentTarget;
         var value = $(target).find(".code").attr("otpdata");
         navigator.clipboard.writeText(value);
-        alert(value)
         toast();
     })
 
