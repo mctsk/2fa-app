@@ -129,7 +129,7 @@ function getStorage() {
                     period: x.info.period,
                     timestamp: Date.now(),
                 })
-                var optText = otp.toString().substring(0, 2) + " <span>" + otp.toString().substring(1, 3) + "</span> " + otp.toString().substring(4, 6);
+                var optText = otp.toString().substring(0, 3) + " <span>" + otp.toString().substring(3, 6) + "</span> ";
                 
 
                 $(".twofa-list").append(`
@@ -365,6 +365,7 @@ $(document).ready(function () {
         var target = e.currentTarget;
         var value = $(target).find(".code").attr("otpdata");
         navigator.clipboard.writeText(value);
+        alert(value)
         toast();
     })
 
