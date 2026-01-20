@@ -3,25 +3,25 @@ const path = require('node:path')
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 350,
-    height: 600,
-    minWidth: 350,
-    maxWidth: 350,
-    minHeight: 600,
-    maxHeight: 600,
+    width: 360,
+    height: 640,
+    minWidth: 360,
+    maxWidth: 360,
+    minHeight: 640,
+    maxHeight: 640,
     resizable: false,
     icon: __dirname + '/img/icon.png',
     transparent: false,
     fullscreen: false,
     fullscreenable: false,
-    darkTheme: true,
+    darkTheme: true, // System pref
     titleBarStyle: "hidden",
     titleBarOverlay: {
-      symbolColor: '#ff79c6',
-      color: '#44475a',
-      right: '0'
+      color: '#00000000', // Transparent to let background show? or just default.
+      symbolColor: '#747474',
+      height: 30
     },
-    autoHideMenuBar: true,
+    autoHideMenuBar: false, // Keep this
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -57,5 +57,5 @@ app.on('window-all-closed', () => {
 })
 
 // Create myWindow, load the rest of the app, etc...
-app.on('ready', function() {
+app.on('ready', function () {
 });

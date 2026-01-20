@@ -1,0 +1,361 @@
+/* Main Styles reusing variables from theme.css */
+
+/* Custom Scrollbar - Global settings */
+::-webkit-scrollbar {
+    width: 6px;
+    /* Thin scrollbar */
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-secondary);
+}
+
+body {
+    overflow: hidden;
+    /* Hide outer scrollbar */
+}
+
+/* Top Bar */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 35px 20px 10px 20px;
+    /* Top padding confirmed at 15px */
+    background-color: var(--bg-primary);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    -webkit-app-region: drag;
+    /* Allow dragging window */
+}
+
+.app-title {
+    font-size: 14px;
+    /* Increased by ~25% from 11px */
+    font-weight: bold;
+    color: var(--accent-blue);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+    -webkit-app-region: no-drag;
+}
+
+/* Specific sizing for header icons to reduce them by ~25% */
+.header-actions .material-icons {
+    font-size: 18px !important;
+    /* Standard is 24px, 75% is 18px */
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.icon-btn:hover {
+    background-color: var(--accent-blue-soft);
+}
+
+/* Account List */
+.account-list {
+    padding: 5px 10px;
+    list-style: none;
+    margin: 0;
+    overflow-y: auto;
+    /* Enable scrolling only here */
+    height: calc(100vh - 85px);
+    /* Adjusted height calculation */
+}
+
+.account-card {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    /* Slightly tighter radius */
+    padding: 12px 16px;
+    /* Reduced vertical padding for compactness */
+    margin-bottom: 10px;
+    /* Reduced margin */
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s ease, background-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    user-select: none;
+    cursor: pointer;
+}
+
+.account-card:hover {
+    transform: translateY(-2px);
+}
+
+.account-card:active {
+    transform: scale(0.98);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    /* Reduced margin */
+}
+
+.issuer-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--bg-card);
+    flex-shrink: 0;
+    overflow: hidden;
+    /* Ensure images don't overflow */
+}
+
+.issuer-icon.default {
+    background-color: var(--accent-blue);
+    color: white;
+}
+
+.issuer-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.account-info {
+    flex-grow: 1;
+    overflow: hidden;
+    padding-left: 0;
+    /* Reset padding since icon is back */
+}
+
+.issuer-name {
+    font-size: 14px;
+    /* Slightly smaller */
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.account-name {
+    font-size: 11px;
+    /* Smaller */
+    color: var(--text-secondary);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.otp-code {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 26px;
+    /* Slightly smaller for compactness */
+    font-weight: bold;
+    color: var(--accent-blue);
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    padding-left: 5px;
+    /* Adjusted alignment */
+    line-height: 1;
+}
+
+.timer-container {
+    height: 3px;
+    /* Thinner */
+    background-color: var(--timer-bg);
+    border-radius: 2px;
+    margin-left: 5px;
+    /* Adjusted alignment */
+    overflow: hidden;
+    width: calc(100% - 10px);
+}
+
+.timer-bar {
+    height: 100%;
+    background-color: var(--accent-blue);
+    border-radius: 2px;
+    width: 100%;
+    transition: width 1s linear, background-color 0.3s;
+}
+
+.timer-bar.critical {
+    background-color: var(--accent-red);
+}
+
+/* Edit/Delete Actions */
+.card-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    background-color: var(--bg-card);
+    border-radius: 8px;
+    padding: 2px;
+    display: flex;
+    gap: 4px;
+}
+
+.account-card:hover .card-actions,
+.card-actions:hover {
+    opacity: 1;
+}
+
+.card-actions .icon-btn {
+    padding: 4px;
+    /* Smaller action buttons */
+}
+
+.card-actions .material-icons {
+    font-size: 16px !important;
+}
+
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--text-primary);
+    color: var(--bg-primary);
+    padding: 6px 14px;
+    border-radius: 18px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.3s, bottom 0.3s;
+    pointer-events: none;
+    z-index: 2000;
+}
+
+.toast.show {
+    opacity: 1;
+    bottom: 30px;
+}
+
+/* Utility */
+.hidden {
+    display: none !important;
+}
+
+/* Modals */
+.custom-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.custom-modal.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background-color: var(--bg-card);
+    border-radius: 16px;
+    padding: 20px;
+    width: 85%;
+    max-width: 280px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-title {
+    margin-top: 0;
+    color: var(--text-primary);
+    font-size: 16px;
+}
+
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    box-sizing: border-box;
+    font-size: 13px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-secondary {
+    background-color: var(--timer-bg);
+    color: var(--text-primary);
+}
+
+.btn-primary {
+    background-color: var(--accent-blue);
+    color: white;
+}
+
+.btn-danger {
+    background-color: var(--accent-red);
+    color: white;
+}

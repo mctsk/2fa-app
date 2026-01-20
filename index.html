@@ -3,85 +3,87 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP --> 
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:">
     <title>AuthCodes</title>
-    <link href="./css/index.css" rel="stylesheet" />
-    <link href="./css/template-dark.css" rel="stylesheet" />
+
+    <!-- CSS -->
+    <link href="./css/theme.css" rel="stylesheet" />
+    <link href="./css/styles.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="./img/icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="./img/icon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="./img/icon.png">
+
+    <!-- Scripts -->
     <script src="./renderer.js"></script>
-    <script src="./twofa.js"></script>
-    <script src="./node_modules/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="./node_modules/material-components-web/dist/material-components-web.min.js"></script>
+    <script src="./node_modules/sortablejs/Sortable.min.js"></script>
+    <!-- Using separate script tag for twofa.js to ensure DOM is ready or defer -->
 </head>
 
 <body>
-    <header class="mdc-top-app-bar mdc-top-app-bar--dense">
-        <div class="mdc-top-app-bar__row">
-            <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
-                <span class="mdc-top-app-bar__title">
-                    <img src="./img/icon.png" class="header-logo" />
-                    AuthCodes
-                </span>
-            </section>
-            <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
-                <a href="#" aria-label="Edit" class="mdc-icon-button material-icons edit-btn" title="Düzenle">tune</a>
-            </section>
+    <!-- Top Bar -->
+    <header class="app-header">
+        <h1 class="app-title">AuthCodes</h1>
+        <div class="header-actions">
+            <button id="theme-toggle" class="icon-btn" title="Tema Değiştir">
+                <i class="material-icons">light_mode</i>
+            </button>
+            <button id="add-btn" class="icon-btn" title="Yeni Ekle">
+                <i class="material-icons">add</i>
+            </button>
         </div>
     </header>
-    <ul class="container-fluid twofa-list mdc-list mdc-list--two-line" id="sortable">
+
+    <!-- Account List -->
+    <ul id="account-list" class="account-list">
+        <!-- Accounts will be injected here by JS -->
     </ul>
-    <a href="#" class="addnew" aria-label="Yeni ekle">
-        <button class="mdc-fab fab-fixed" aria-label="Add">
-            <span class="mdc-fab__ripple"></span>
-            <span class="mdc-fab__icon material-icons">add</span>
-        </button>
-    </a>
-    <div class="mdc-dialog" id="deleteModal">
-        <div class="mdc-dialog__container">
-            <div class="mdc-dialog__surface" role="alertdialog" aria-modal="true" aria-label="Sil">
-                <h6 class="mdc-dialog__title">Sil</h6>
-                <div class="mdc-dialog__content small">
-                    <p>Silmek İstediğinizden emin misiniz ?</p>
-                </div>
-                <div class="mdc-dialog__actions">
-                    <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close"><span class="mdc-button__label">Kapat</span></button>
-                    <button type="button" class="mdc-button mdc-dialog__button delete-btn" data-mdc-dialog-action="accept"><span class="mdc-button__label">Sil</span></button>
-                </div>
+
+    <!-- Bottom Actions -->
+    <!-- Bottom Actions Removed -->
+
+    <!-- Modals (Custom implementation) -->
+
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="custom-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Sil</h3>
+            <p>Silmek istediğinizden emin misiniz?</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary js-modal-close">Kapat</button>
+                <button id="confirm-delete-btn" class="btn btn-danger">Sil</button>
             </div>
         </div>
-        <div class="mdc-dialog__scrim"></div>
     </div>
-    <div class="mdc-dialog" id="addNewModal">
-        <div class="mdc-dialog__container">
-            <div class="mdc-dialog__surface" role="alertdialog" aria-modal="true" aria-label="Ekle / Düzenle">
-                <h6 class="mdc-dialog__title">Ekle / Düzenle</h6>
-                <div class="mdc-dialog__content">
-                    <div class="mb-3">
-                        <label for="name" class="form-label small">İsim</label>
-                        <input type="text" class="form-control form-control-sm" id="name">
-                    </div>
-                    <div class="mb-3">
-                        <label for="secret" class="form-label small">Secret</label>
-                        <input type="text" class="form-control form-control-sm" id="secret">
-                    </div>
-                </div>
-                <div class="mdc-dialog__actions">
-                    <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close"><span class="mdc-button__label">Kapat</span></button>
-                    <button type="button" class="mdc-button mdc-dialog__button save-btn" data-mdc-dialog-action="accept"><span class="mdc-button__label">Kaydet</span></button>
-                </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="addNewModal" class="custom-modal">
+        <div class="modal-content">
+            <h3 class="modal-title" id="modalTitle">Ekle / Düzenle</h3>
+            <div class="form-group">
+                <label for="name" class="form-label">Hesap Adı</label>
+                <input type="text" id="name" class="form-input" placeholder="Örn: Google">
+            </div>
+            <div class="form-group">
+                <label for="icon-url" class="form-label">Simge URL (Opsiyonel)</label>
+                <input type="text" id="icon-url" class="form-input" placeholder="https://example.com/icon.png">
+            </div>
+            <div class="form-group">
+                <label for="secret" class="form-label">Gizli Anahtar (Secret)</label>
+                <input type="text" id="secret" class="form-input" placeholder="Anahtarı buraya yapıştırın">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary js-modal-close">Kapat</button>
+                <button id="save-btn" class="btn btn-primary">Kaydet</button>
             </div>
         </div>
-        <div class="mdc-dialog__scrim"></div>
     </div>
-    <div class="mdc-snackbar" id="snackbar">
-        <div class="mdc-snackbar__surface" role="status" aria-relevant="additions">
-            <div class="mdc-snackbar__label" aria-atomic="false"></div>
-        </div>
-    </div>
+
+    <script src="./twofa.js"></script>
 </body>
 
 </html>

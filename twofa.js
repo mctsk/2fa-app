@@ -3,451 +3,351 @@ const os = require('os')
 const { TOTP } = require('totp-generator')
 const Sortable = require('sortablejs')
 const storage = require('electron-json-storage');
+const path = require('path');
 
+// Storage setup
 storage.setDataPath(os.homedir());
 
-const dataPath = storage.getDataPath();
-const path = require('path')
-
-
-const filePath = path.join(__dirname, 'data.json')
-let allData = {}
-
-var remainSeconds = 0;
-var deleteModal;
-var addModal;
-var sortable;
-var snackbar;
-var countdownNumberEl;
-var editActive = false;
-var longPressTimer = null;
-var longPressDelay = 1000; // 2 seconds
+let allData = { entries: [] };
+let remainSeconds = 0;
+// No global editActive needed for new design
+let sortableInstance;
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize MDC Dialogs and Snackbar
-    deleteModal = new mdc.dialog.MDCDialog(document.getElementById('deleteModal'))
-    addModal = new mdc.dialog.MDCDialog(document.getElementById('addNewModal'))
-    snackbar = new mdc.snackbar.MDCSnackbar(document.getElementById('snackbar'))
-   
-    var el = document.getElementById('sortable');
-    var options = {
-        group: 'share',
-        animation: 100
-    };
+    // Theme initialization
+    initTheme();
 
-    events = [
-        'onEnd',
-    ].forEach(function (name) {
-        options[name] = function (evt) {
+    // Event Listeners
+    setupEventListeners();
 
-            var itemList = document.querySelectorAll(".row-2fa")
+    // Initialize Sortable
+    initSortable();
 
-            var queueList = [];
-            itemList.forEach((x, i) => {
-                queueList.push(x.getAttribute("dataid")
-                )
-            })
+    // Load Data
+    getStorage();
 
-            queueList.forEach((item, i) => {
-                var entry = allData.entries.find(x => { return x.id == item });
-                entry.queue = i;
-            });
+    // Start Timer
+    startTimer();
+});
 
-            // writeData();
-            setStorage()
-        };
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        updateThemeIcon(next);
     });
+}
 
-    sortable = Sortable.create(el, options);
+function updateThemeIcon(theme) {
+    const btn = document.getElementById('theme-toggle');
+    const icon = btn.querySelector('.material-icons');
+    // If current is dark, show sun (to switch to light). If light, show moon (to switch to dark).
+    icon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+}
 
+function initSortable() {
+    const el = document.getElementById('account-list');
+    sortableInstance = Sortable.create(el, {
+        animation: 150,
+        handle: '.account-card', // Drag by whole card
+        onEnd: function (evt) {
+            updateQueue();
+        }
+    });
+}
 
-}, false);
-
-let firstStart =true;
+function updateQueue() {
+    const cards = document.querySelectorAll('.account-card');
+    cards.forEach((card, index) => {
+        const id = card.getAttribute('data-id');
+        const entry = allData.entries.find(x => x.id == id);
+        if (entry) {
+            entry.queue = index;
+        }
+    });
+    setStorage();
+}
 
 function getStorage() {
-	               
     storage.get('userData', function (error, data) {
-        if (error) throw error;
+        if (error) console.error(error);
 
-        const response = data
-        console.log("Loaded from electron storage:", response);
-        
-        if(response != null && response.entries != null) {
-            allData = response;
-            console.log("Using electron storage data, entries count:", allData.entries.length);
+        if (data && data.entries) {
+            allData = data;
         } else {
-            // Try to load from local data.json file as fallback
+            // Fallback to local file if exists (migration path)
+            const filePath = path.join(__dirname, 'data.json');
             try {
-                const localData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-                console.log("Loaded from local data.json:", localData);
-                if (localData && localData.entries) {
-                    allData = localData;
-                    console.log("Using local file data, entries count:", allData.entries.length);
-                    // Save to electron storage for future use
-                    storage.set('userData', allData, function (error) {
-                        if (error) console.error("Error saving to electron storage:", error);
-                    });
-                } else {
-                    allData = {entries:[]};
+                if (fs.existsSync(filePath)) {
+                    const localData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                    if (localData && localData.entries) {
+                        allData = localData;
+                        setStorage(); // Migrate to electron-storage
+                    }
                 }
-            } catch (fileError) {
-                console.log("Could not read local data.json, using empty data");
-                allData = {entries:[]};
+            } catch (e) {
+                console.log("No local data found or error reading it");
             }
         }
 
-        // handle the json data here
-        $(".twofa-list").html("");
-
-        var time = new Date();
-
-        // var t1 = time.getTime()
-
-        // const { expires } = TOTP.generate(allData.entries[0].info.secret, {
-        //     digits: allData.entries[0].info.digits,
-        //     period: allData.entries[0].info.period,
-        //     timestamp: Date.now(),
-        // })
-        
-        remainSeconds = 30 - (Math.floor(time / 1000) % 30);
-        
-        if (allData.entries && allData.entries.length > 0) {
-            console.log("Rendering entries:", allData.entries.length);
-            console.log("All entries before sort:", allData.entries.map(e => ({name: e.name, queue: e.queue})));
-            
-            const sortedEntries = allData.entries.sort((a, b) => (a.queue || 0) - (b.queue || 0));
-            console.log("Sorted entries:", sortedEntries.map(e => ({name: e.name, queue: e.queue})));
-            
-            sortedEntries.forEach((x, index) => {
-                console.log(`Rendering entry ${index + 1}:`, x.name, "queue:", x.queue);
-                const key = x.info.secret
-                x.id = x.id ?? Math.random().toString(36);
-
-                const { otp } = TOTP.generate(key, {
-                    digits: x.info.digits,
-                    period: x.info.period,
-                    timestamp: Date.now(),
-                })
-                var optText = otp.toString().substring(0, 3) + " <span>" + otp.toString().substring(3, 6) + "</span> ";
-                
-
-                $(".twofa-list").append(`
-                    <li class="row-2fa mdc-list-item" dataid="${x.id}">
-                        <span class="mdc-list-item__ripple"></span>
-                        <div class="mdc-list-item__start ${editActive ? "":"hide-on"}">
-                            <i class="material-icons" aria-hidden="true">drag_handle</i>
-                        </div>
-                        <span class="mdc-list-item__content">
-                            <span class="mdc-list-item__primary-text">${x.name}</span>
-                            <span class="mdc-list-item__secondary-text code" otpdata="${otp}">${optText}</span>
-                        </span>
-                        <div class="mdc-list-item__end">
-                            <div class="time-wrapper">
-                                <div class="countdown-circle"></div>
-                                <div id="countdown" name="countdown"><div class="time"><div>${ firstStart ?'':'30' }</div></div></div>
-                            </div>
-                            <div class="f-edit ${editActive ? "":"hide-on"}">
-                                <button class="edit mdc-icon-button" dataid="${x.id}">
-                                    <i class="material-icons" aria-hidden="true">edit</i>
-                                </button>
-                            </div>
-                            <div class="f-delete ${editActive ? "":"hide-on"}">
-                                <button class="delete mdc-icon-button" dataid="${x.id}">
-                                    <i class="material-icons" aria-hidden="true">delete</i>
-                                </button>
-                            </div>
-                        </div>
-                    </li>
-                `)
-            })
-        } else {
-            console.log("No entries found to render");
-        }
-
-        if(firstStart)
-        {
-            // Initialize countdown circles
-            var progress = remainSeconds / 30;
-            var rotation = (1 - progress) * 360 - 90;
-            $(".countdown-circle::before").css("transform", `rotate(${rotation}deg)`);
-            
-            $(document).trigger("onListLoaded");
-            firstStart=false;
-        }
-        else
-        {
-            timeDown(remainSeconds)
-            //circleAnimation(113,30);
-        }
+        // Initial Render
+        renderAccounts();
     });
 }
 
 function setStorage() {
-    console.log("Saving data:", allData);
-    console.log("Entries count:", allData.entries ? allData.entries.length : 0);
-    
     storage.set('userData', allData, function (error) {
-        if (error) {
-            console.error("Storage error:", error);
-            throw error;
-        }
-
-        console.log("Data saved successfully");
-        $("#addNewModal").find("input").val("");
-        $("#addNewModal").attr("dataid","");
-
-        addModal.close();
-        deleteModal.close();
-
-        getStorage();
+        if (error) console.error("Error saving:", error);
     });
 }
 
-function toast() {
-    if(!snackbar){
-        snackbar = new mdc.snackbar.MDCSnackbar(document.getElementById('snackbar'))
-    }
-    snackbar.labelText = "Kopyalandı";
-    snackbar.open();
+function renderAccounts() {
+    const list = document.getElementById('account-list');
+    list.innerHTML = '';
+
+    if (!allData.entries) return;
+
+    // Sort by queue
+    allData.entries.sort((a, b) => (a.queue || 0) - (b.queue || 0));
+
+    const now = Date.now();
+
+    allData.entries.forEach(entry => {
+        // Generate OTP
+        let otp = '000000';
+        try {
+            const { otp: generatedOtp } = TOTP.generate(entry.info.secret, {
+                digits: entry.info.digits || 6,
+                period: entry.info.period || 30,
+                timestamp: now
+            });
+            otp = generatedOtp;
+        } catch (e) {
+            console.error("Error generating OTP for", entry.name, e);
+            otp = 'ERROR';
+        }
+
+        // Format OTP (123 456)
+        const formattedOtp = otp.length === 6 ? `${otp.slice(0, 3)} ${otp.slice(3)}` : otp;
+
+        // Determine Icon
+        let iconHtml = '';
+        if (entry.iconUrl) {
+            // Use custom URL if present
+            iconHtml = `<div class="issuer-icon" style="background-color: transparent;"><img src="${entry.iconUrl}" alt="${entry.name}" onError="this.style.display='none';this.parentNode.classList.add('default');this.parentNode.innerText='${entry.name[0]}'"></div>`;
+        } else {
+            // Fallback to default letter if no URL
+            iconHtml = `<div class="issuer-icon default">${entry.name[0]}</div>`;
+        }
+
+        const li = document.createElement('li');
+        li.className = 'account-card';
+        li.setAttribute('data-id', entry.id);
+
+        li.innerHTML = `
+            <div class="card-header">
+                ${iconHtml}
+                <div class="account-info">
+                    <h3 class="issuer-name">${entry.name}</h3>
+                    <p class="account-name">${entry.issuer || entry.name}</p>
+                </div>
+            </div>
+            <div class="otp-code" data-raw="${otp}">${formattedOtp}</div>
+            <div class="timer-container">
+                <div class="timer-bar" style="width: 100%;"></div>
+            </div>
+            <div class="card-actions">
+                <button class="icon-btn edit-btn" title="Düzenle"><i class="material-icons" style="font-size:18px;">edit</i></button>
+                <button class="icon-btn delete-btn" title="Sil"><i class="material-icons" style="font-size:18px;color:var(--accent-red);">delete</i></button>
+            </div>
+        `;
+
+        // Click to copy
+        li.addEventListener('click', (e) => {
+            if (e.target.closest('button')) return; // Don't copy if button clicked
+
+            navigator.clipboard.writeText(otp).then(() => {
+                showToast("Kopyalandı!");
+            }).catch(err => {
+                console.error("Copy failed", err);
+            });
+        });
+
+        // Edit/Delete handlers
+        li.querySelector('.edit-btn').addEventListener('click', () => openAddModal(entry.id));
+        li.querySelector('.delete-btn').addEventListener('click', () => openDeleteModal(entry.id));
+
+        list.appendChild(li);
+    });
+
+    updateTimerUI();
 }
 
-function timeDown(_remainSeconds){
+function startTimer() {
+    setInterval(() => {
+        const time = Math.floor(Date.now() / 1000);
+        remainSeconds = 30 - (time % 30);
 
-    var countdown = _remainSeconds;
-    countdownNumberEl.html(countdown);
-    setInterval(function() {
-        countdown = --countdown <= 0 ? _remainSeconds : countdown;
-        countdownNumberEl.html(countdown);
+        // If cycle completed, re-render OTPs
+        if (remainSeconds === 30) {
+            renderAccounts();
+        } else {
+            updateTimerUI();
+        }
     }, 1000);
 }
 
-function circleAnimation(remainpercentanimation,remainSeconds) {
+function updateTimerUI() {
+    const bars = document.querySelectorAll('.timer-bar');
+    const width = (remainSeconds / 30) * 100;
 
-    // document.styleSheets[1].cssRules[31].style.animationDuration=Math.round(remainSeconds)+"s"
-    document.styleSheets[1].cssRules[31].style.animationDuration="30s"
-    
-    let myRules = document.styleSheets[1].cssRules;
-    let keyframes = myRules[32];
-    var rule =keyframes.findRule("from");
-    
-    //rule.style.strokeDashoffset = Math.round(100-remainpercentanimation)+"px";
-    rule.style.strokeDashoffset = "0px";
-
+    bars.forEach(bar => {
+        bar.style.width = `${width}%`;
+        if (remainSeconds <= 5) {
+            bar.classList.add('critical');
+        } else {
+            bar.classList.remove('critical');
+        }
+    });
 }
 
-var interval;
+// Modal Logic
+function openModal(id) {
+    document.getElementById(id).classList.add('open');
+}
 
-$(document).ready(function () {
+function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+}
 
-    $(window).on("focus",function(event){
-        firstStart = true;
-        getStorage()
-    });
+function openAddModal(editId = null) {
+    const modal = document.getElementById('addNewModal');
+    const title = document.getElementById('modalTitle');
+    const nameInput = document.getElementById('name');
+    const secretInput = document.getElementById('secret');
+    const iconUrlInput = document.getElementById('icon-url');
+    const saveBtn = document.getElementById('save-btn');
 
-    // Toggle edit mode function
-    function toggleEditMode() {
-        if(editActive) {
-            $(".mdc-list-item__start, .f-edit, .f-delete").addClass("hide-on");
-            $(".edit-btn").removeClass("active");
-            editActive=false;
-            console.log("Edit mode disabled");
-        } 
-        else    {
-            $(".mdc-list-item__start, .f-edit, .f-delete").removeClass("hide-on");
-            $(".edit-btn").addClass("active");
-            editActive=true;
-            console.log("Edit mode enabled");
+    // Reset fields
+    nameInput.value = '';
+    secretInput.value = '';
+    iconUrlInput.value = '';
+    modal.setAttribute('data-edit-id', '');
+
+    if (editId) {
+        title.innerText = 'Düzenle';
+        const entry = allData.entries.find(x => x.id == editId);
+        if (entry) {
+            nameInput.value = entry.name;
+            secretInput.value = entry.info.secret;
+            iconUrlInput.value = entry.iconUrl || '';
+            modal.setAttribute('data-edit-id', editId);
         }
+    } else {
+        title.innerText = 'Yeni Ekle';
     }
 
-    // Settings button (optional - can still be used)
-    $(document).on("click", ".edit-btn", function(event){
-        event.preventDefault();
-        event.stopPropagation();
-        console.log("Settings button clicked, editActive:", editActive);
-        toggleEditMode();
-    });
+    openModal('addNewModal');
 
+    // One-time listener setup or re-create to avoid duplicates? 
+    // Best to have a single listener that checks state, doing that in setupEventListeners
+}
 
-    $(document).on("onListLoaded", function (remainSeconds) {
+function openDeleteModal(id) {
+    const modal = document.getElementById('deleteModal');
+    modal.setAttribute('data-delete-id', id);
+    openModal('deleteModal');
+}
 
-        var remainpercent = Math.round((remainSeconds / 30) * 113);
-        var remainpercentanimation = Math.round((remainpercent / 113) * 100);
-                
-        //circleAnimation(remainpercentanimation,remainSeconds);
-        
-        if(!countdownNumberEl)
-            countdownNumberEl = $('.time div');
+function setupEventListeners() {
+    // Add Button
+    document.getElementById('add-btn').addEventListener('click', () => openAddModal());
 
-        var countdown = remainSeconds;
-        // countdownNumberEl.html(countdown);
-        interval =  setInterval(function() {
-                countdown = --countdown <= 0 ? 30 : countdown;
-                //countdownNumberEl.html(countdown);
-                if(countdown <=0)
-                    clearInterval(interval);
-            }, 1000);
+    // Close buttons
+    document.querySelectorAll('.js-modal-close').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            closeModal(e.target.closest('.custom-modal').id);
         });
-    
-    setInterval(function () {
-        if (remainSeconds <= 1) {
-            $(".time div").html("");
-            // Reset all countdown circles to full rotation
-            $(".countdown-circle::before").css("transform", "rotate(-90deg)");
-            // readData()
-            getStorage();
-        }
-        else {
-            remainSeconds--;
-            $(".time div").html(remainSeconds);
-            
-            // Update countdown circle border - rotate to show decreasing progress
-            var progress = remainSeconds / 30; // Progress from 1 to 0
-            var rotation = (1 - progress) * 360 - 90; // Rotate from -90deg to 270deg
-            $(".countdown-circle::before").css("transform", `rotate(${rotation}deg)`);
-        }
-
-    }, 1000)
-
-    // Long press functionality for showing/hiding edit controls
-    function startLongPress(e) {
-        // Don't start long press if clicking on edit/delete buttons or drag handle
-        if ($(e.target).closest('.edit, .delete, .mdc-list-item__start').length > 0) {
-            return;
-        }
-        
-        var target = e.currentTarget;
-        longPressTimer = setTimeout(function() {
-            toggleEditMode();
-            // Add visual feedback
-            $(target).addClass('long-press-active');
-            setTimeout(function() {
-                $(target).removeClass('long-press-active');
-            }, 200);
-        }, longPressDelay);
-    }
-
-    function cancelLongPress() {
-        if (longPressTimer) {
-            clearTimeout(longPressTimer);
-            longPressTimer = null;
-        }
-    }
-
-    // Mouse events
-    $(document).on("mousedown", ".row-2fa", startLongPress);
-    $(document).on("mouseup mouseleave", ".row-2fa", cancelLongPress);
-
-    // Touch events for mobile
-    $(document).on("touchstart", ".row-2fa", function(e) {
-        e.preventDefault();
-        startLongPress(e);
-    });
-    
-    $(document).on("touchend touchcancel", ".row-2fa", function(e) {
-        e.preventDefault();
-        cancelLongPress();
     });
 
-    // Regular click for copying (only if not in edit mode)
-    $(document).on("click", ".row-2fa", function (e) {
-        // Don't copy if clicking on edit/delete buttons or drag handle
-        if ($(e.target).closest('.edit, .delete, .mdc-list-item__start').length > 0) {
+    // Save Button
+    document.getElementById('save-btn').addEventListener('click', () => {
+        const modal = document.getElementById('addNewModal');
+        const editId = modal.getAttribute('data-edit-id');
+        const name = document.getElementById('name').value;
+        const secret = document.getElementById('secret').value;
+        const iconUrl = document.getElementById('icon-url').value;
+
+        if (!name || !secret) {
+            alert('Lütfen isim ve secret alanlarını doldurun.');
             return;
         }
-        
-        // Don't copy if in edit mode
-        if (editActive) {
-            return;
-        }
-        
-        var target = e.currentTarget;
-        var value = $(target).find(".code").attr("otpdata");
-        navigator.clipboard.writeText(value);
-        toast();
-    })
 
-    $(document).on("click", ".delete", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log("Delete button clicked");
-        var target = e.currentTarget;
-        var value = $(target).attr("dataid")
-        console.log("Delete ID:", value);
-        $("#deleteModal").attr("dataid", value)
-        deleteModal.open();
-    })
-
-    $(document).on("click", ".addnew", function (e) {
-        e.preventDefault();
-        addModal.open();
-    })
-
-    $(document).on("click", ".edit", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log("Edit button clicked");
-        var target = e.currentTarget;
-        var value = $(target).attr("dataid")
-        console.log("Edit ID:", value);
-        $("#addNewModal").attr("dataid", value)
-
-        var entity = allData.entries.find(x => { return x.id == value });
-        $("#name").val(entity.name );
-        $("#secret").val(entity.info.secret);
-
-        addModal.open();
-    })
-
-    $(document).on("click", ".save-btn", function (e) {
-        e.preventDefault();
-
-        var value = $("#addNewModal").attr("dataid");
-
-        // Ensure allData.entries exists
-        if (!allData.entries) {
-            allData.entries = [];
-        }
-
-        if(!value){
-            var date = new Date();
-            var entity = {
-                "id": date.getTime(),
-                "type": "totp",
-                "name": $("#name").val(),
-                "issuer": $("#name").val(),
-                "icon": null,
-                "info": {
-                    "secret": $("#secret").val(),
-                    "algo": "SHA1",
-                    "digits": 6,
-                    "period": 30
-                }
+        if (editId) {
+            // Edit
+            const entry = allData.entries.find(x => x.id == editId);
+            if (entry) {
+                entry.name = name;
+                entry.info.secret = secret;
+                entry.iconUrl = iconUrl;
+                delete entry.icon; // Remove legacy field if exists
             }
-            allData.entries.push(entity);
-            console.log("Added new entry, total entries:", allData.entries.length);
-        }
-        else{
-            var entity = allData.entries.find(x => { return x.id == value });
-            if (entity) {
-                entity.name = $("#name").val();
-                entity.info.secret = $("#secret").val();
-                console.log("Updated entry:", entity.name);
-            }
+        } else {
+            // Add
+            const newEntry = {
+                id: Date.now().toString(), // String ID is safer
+                name: name,
+                issuer: name,
+                iconUrl: iconUrl,
+                info: {
+                    secret: secret,
+                    algo: "SHA1",
+                    digits: 6,
+                    period: 30
+                },
+                queue: allData.entries.length
+            };
+            allData.entries.push(newEntry);
         }
 
-        // writeData();
-        setStorage()
-    })
+        setStorage();
+        renderAccounts();
+        closeModal('addNewModal');
+    });
 
-    $(document).on("click", ".delete-btn", function (e) {
-        e.preventDefault();
-        var value = $("#deleteModal").attr("dataid");
-        allData.entries = allData.entries.filter(x => {
-            return x.id != value
-        })
-        //writeData()
-        setStorage()
-    })
-});
+    // Delete Confirm
+    document.getElementById('confirm-delete-btn').addEventListener('click', () => {
+        const modal = document.getElementById('deleteModal');
+        const id = modal.getAttribute('data-delete-id');
+
+        allData.entries = allData.entries.filter(x => x.id != id);
+        setStorage();
+        renderAccounts();
+        closeModal('deleteModal');
+    });
+}
+
+function showToast(message) {
+    let toast = document.getElementById('toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast';
+        toast.className = 'toast';
+        document.body.appendChild(toast);
+    }
+
+    toast.textContent = message;
+    toast.classList.add('show');
+
+    if (window.toastTimeout) clearTimeout(window.toastTimeout);
+
+    window.toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+    }, 2000);
+}
