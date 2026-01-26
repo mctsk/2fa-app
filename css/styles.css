@@ -359,3 +359,35 @@ body {
     background-color: var(--accent-red);
     color: white;
 }
+
+/* QR Code Styles */
+.qr-group {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center;
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+}
+
+.qr-canvas-wrapper {
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    /* Space between label and canvas */
+}
+
+#qr-canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+.text-center {
+    text-align: center;
+    width: 100%;
+}

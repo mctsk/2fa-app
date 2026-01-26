@@ -1,6 +1,7 @@
 const fs = require('fs')
 const os = require('os')
 const { TOTP } = require('totp-generator')
+const QRCode = require('qrcode')
 const Sortable = require('sortablejs')
 const storage = require('electron-json-storage');
 const path = require('path');
@@ -121,13 +122,25 @@ function renderAccounts() {
     allData.entries.forEach(entry => {
         // Generate OTP
         let otp = '000000';
+        let expires = Date.now() + 30000;
         try {
-            const { otp: generatedOtp } = TOTP.generate(entry.info.secret, {
+            // Clean secret (remove spaces, convert to uppercase)
+            const cleanSecret = (entry.info.secret || '').replace(/\s/g, '').toUpperCase();
+
+            // Map algorithm names to what library expects (SHA1 -> SHA-1)
+            let algo = entry.info.algo || "SHA-1";
+            if (algo === "SHA1") algo = "SHA-1";
+            if (algo === "SHA256") algo = "SHA-256";
+            if (algo === "SHA512") algo = "SHA-512";
+
+            const result = TOTP.generate(cleanSecret, {
                 digits: entry.info.digits || 6,
                 period: entry.info.period || 30,
-                timestamp: now
+                timestamp: now,
+                algorithm: algo
             });
-            otp = generatedOtp;
+            otp = result.otp;
+            expires = result.expires;
         } catch (e) {
             console.error("Error generating OTP for", entry.name, e);
             otp = 'ERROR';
@@ -149,6 +162,10 @@ function renderAccounts() {
         const li = document.createElement('li');
         li.className = 'account-card';
         li.setAttribute('data-id', entry.id);
+        // Store period and expires for timer updates
+        const period = entry.info.period || 30;
+        li.setAttribute('data-period', period);
+        li.setAttribute('data-expires', expires);
 
         li.innerHTML = `
             <div class="card-header">
@@ -186,33 +203,60 @@ function renderAccounts() {
         list.appendChild(li);
     });
 
-    updateTimerUI();
+    // Initial timer UI update
+    updateTimerLogic(true);
 }
 
 function startTimer() {
+    updateTimerLogic(); // Run immediately
     setInterval(() => {
-        const time = Math.floor(Date.now() / 1000);
-        remainSeconds = 30 - (time % 30);
-
-        // If cycle completed, re-render OTPs
-        if (remainSeconds === 30) {
-            renderAccounts();
-        } else {
-            updateTimerUI();
-        }
+        updateTimerLogic();
     }, 1000);
 }
 
-function updateTimerUI() {
-    const bars = document.querySelectorAll('.timer-bar');
-    const width = (remainSeconds / 30) * 100;
+function updateTimerLogic(onlyUI = false) {
+    const nowMs = Date.now();
 
-    bars.forEach(bar => {
-        bar.style.width = `${width}%`;
-        if (remainSeconds <= 5) {
-            bar.classList.add('critical');
-        } else {
-            bar.classList.remove('critical');
+    // Check if any card has expired
+    const cards = document.querySelectorAll('.account-card');
+    let needsRefresh = false;
+
+    cards.forEach(card => {
+        const expires = parseInt(card.getAttribute('data-expires') || '0');
+        if (nowMs >= expires) {
+            needsRefresh = true;
+        }
+    });
+
+    if (!onlyUI && (needsRefresh || cards.length === 0)) {
+        renderAccounts();
+        return;
+    }
+
+    updateTimerUI(nowMs);
+}
+
+function updateTimerUI(nowMs = null) {
+    if (!nowMs) nowMs = Date.now();
+
+    const cards = document.querySelectorAll('.account-card');
+    cards.forEach(card => {
+        const bar = card.querySelector('.timer-bar');
+        const period = parseInt(card.getAttribute('data-period') || 30);
+        const expires = parseInt(card.getAttribute('data-expires') || '0');
+
+        const remainMs = Math.max(0, expires - nowMs);
+        const totalMs = period * 1000;
+
+        const width = (remainMs / totalMs) * 100;
+
+        if (bar) {
+            bar.style.width = `${width}%`;
+            if (remainMs <= 5000) {
+                bar.classList.add('critical');
+            } else {
+                bar.classList.remove('critical');
+            }
         }
     });
 }
@@ -248,9 +292,13 @@ function openAddModal(editId = null) {
             secretInput.value = entry.info.secret;
             iconUrlInput.value = entry.iconUrl || '';
             modal.setAttribute('data-edit-id', editId);
+
+            // Generate QR Code for existing entries
+            generateQRCode(entry.info.secret, entry.name, entry.issuer || entry.name);
         }
     } else {
         title.innerText = 'Yeni Ekle';
+        document.getElementById('qr-container').style.display = 'none';
     }
 
     openModal('addNewModal');
@@ -331,6 +379,37 @@ function setupEventListeners() {
         renderAccounts();
         closeModal('deleteModal');
     });
+}
+
+async function generateQRCode(secret, name, issuer) {
+    const qrContainer = document.getElementById('qr-container');
+    const canvas = document.getElementById('qr-canvas');
+
+    if (!secret) {
+        qrContainer.style.display = 'none';
+        return;
+    }
+
+    try {
+        // Construct otpauth URI
+        // otpauth://totp/Issuer:AccountName?secret=SECRET&issuer=Issuer
+        const cleanSecret = secret.replace(/\s/g, '').toUpperCase();
+        const uri = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(name)}?secret=${cleanSecret}&issuer=${encodeURIComponent(issuer)}`;
+
+        await QRCode.toCanvas(canvas, uri, {
+            width: 180,
+            margin: 2,
+            color: {
+                dark: '#000000',
+                light: '#ffffff'
+            }
+        });
+
+        qrContainer.style.display = 'flex';
+    } catch (err) {
+        console.error('QR generation failed', err);
+        qrContainer.style.display = 'none';
+    }
 }
 
 function showToast(message) {
