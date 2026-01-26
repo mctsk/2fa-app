@@ -22,11 +22,17 @@ function createWindow() {
       height: 30
     },
     autoHideMenuBar: false, // Keep this
+    backgroundColor: '#1C1C1E',
+    show: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       preload: path.join(__dirname, 'preload.js')
     }
+  })
+
+  win.once('ready-to-show', () => {
+    win.show()
   })
 
 
@@ -35,7 +41,7 @@ function createWindow() {
   }
 
 
-  win.show()
+
 
   win.loadFile('index.html')
 }

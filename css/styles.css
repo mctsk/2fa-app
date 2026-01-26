@@ -391,3 +391,87 @@ body {
     text-align: center;
     width: 100%;
 }
+
+/* Skeleton Loader Styles */
+.skeleton-card {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    height: 100px;
+    /* Approximate height of a real card */
+}
+
+.skeleton-shimmer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.05),
+            transparent);
+    animation: shimmer 1.5s infinite linear;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(50%);
+    }
+}
+
+.skeleton-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.skeleton-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--timer-bg);
+    margin-right: 12px;
+}
+
+.skeleton-info {
+    flex-grow: 1;
+}
+
+.skeleton-text {
+    height: 12px;
+    background-color: var(--timer-bg);
+    border-radius: 4px;
+    margin-bottom: 6px;
+    width: 40%;
+}
+
+.skeleton-text.short {
+    width: 25%;
+}
+
+.skeleton-code {
+    height: 32px;
+    background-color: var(--timer-bg);
+    border-radius: 6px;
+    margin-bottom: 10px;
+    width: 60%;
+    margin-top: 5px;
+}
+
+.skeleton-timer {
+    height: 3px;
+    background-color: var(--timer-bg);
+    border-radius: 2px;
+    width: 100%;
+}

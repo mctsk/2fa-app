@@ -12,6 +12,65 @@
     <link href="./css/theme.css" rel="stylesheet" />
     <link href="./css/styles.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script>
+        // Apply theme immediately to prevent flashing
+        (function () {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+    <style>
+        /* Critical CSS to prevent startup flash */
+        :root {
+            /* Basic fallbacks if theme.css is slow */
+            --bg-primary: #1C1C1E;
+            --bg-card: #2C2C2E;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #F8F9FA;
+            --bg-card: #FFFFFF;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .skeleton-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 10px;
+            height: 100px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .skeleton-shimmer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            animation: shimmer 1.5s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(50%);
+            }
+        }
+    </style>
 
     <!-- Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="./img/icon.png">
@@ -40,7 +99,43 @@
 
     <!-- Account List -->
     <ul id="account-list" class="account-list">
-        <!-- Accounts will be injected here by JS -->
+        <!-- Skeleton Loaders -->
+        <li class="skeleton-card">
+            <div class="skeleton-shimmer"></div>
+            <div class="skeleton-header">
+                <div class="skeleton-icon"></div>
+                <div class="skeleton-info">
+                    <div class="skeleton-text"></div>
+                    <div class="skeleton-text short"></div>
+                </div>
+            </div>
+            <div class="skeleton-code"></div>
+            <div class="skeleton-timer"></div>
+        </li>
+        <li class="skeleton-card">
+            <div class="skeleton-shimmer"></div>
+            <div class="skeleton-header">
+                <div class="skeleton-icon"></div>
+                <div class="skeleton-info">
+                    <div class="skeleton-text"></div>
+                    <div class="skeleton-text short"></div>
+                </div>
+            </div>
+            <div class="skeleton-code"></div>
+            <div class="skeleton-timer"></div>
+        </li>
+        <li class="skeleton-card">
+            <div class="skeleton-shimmer"></div>
+            <div class="skeleton-header">
+                <div class="skeleton-icon"></div>
+                <div class="skeleton-info">
+                    <div class="skeleton-text"></div>
+                    <div class="skeleton-text short"></div>
+                </div>
+            </div>
+            <div class="skeleton-code"></div>
+            <div class="skeleton-timer"></div>
+        </li>
     </ul>
 
     <!-- Bottom Actions -->
