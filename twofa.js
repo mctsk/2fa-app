@@ -379,6 +379,23 @@ function setupEventListeners() {
         renderAccounts();
         closeModal('deleteModal');
     });
+
+    // Live QR update
+    const modalNameInput = document.getElementById('name');
+    const modalSecretInput = document.getElementById('secret');
+
+    const updateQR = () => {
+        const name = modalNameInput.value;
+        const secret = modalSecretInput.value;
+        if (name && secret) {
+            generateQRCode(secret, name, name);
+        } else {
+            document.getElementById('qr-container').style.display = 'none';
+        }
+    };
+
+    modalNameInput.addEventListener('input', updateQR);
+    modalSecretInput.addEventListener('input', updateQR);
 }
 
 async function generateQRCode(secret, name, issuer) {
